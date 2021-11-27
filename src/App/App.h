@@ -4,20 +4,34 @@
 #include <thread>
 
 #include <d3d11.h>
+#include <fmt/format.h>
 #include <imgui/imgui.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 namespace RTIAW {
 class App {
 public:
-  App(ImVec2 pos, ImVec2 size);
+  App(const ImVec2 pos, const ImVec2 windowSize);
   ~App();
 
   void Run();
 
 private:
-  std::thread m_mainThread;
+  ImVec2 m_windowSize;
+  std::shared_ptr<spdlog::logger> m_logger;
 
-  ImVec4 m_defaultBkgColor{0.0f, 0.0f, 0.0f, 0.0f};
+  // here we store our internal representation of the rendered image
+  std::unique_ptr<uint8_t[]> m_imageBuffer;
+
+  [[nodiscard]] size_t BufferSize() const { return static_cast<size_t>(m_windowSize.x * m_windowSize.y) * 4; }
+  void ResizeWindow(const ImVec2 newSize);
+  void CreateImageBuffer();
+
+  [[nodiscard]] ID3D11ShaderResourceView *DrawImageBuffer() const;
+  void UpdateTexture2D(ID3D11ShaderResourceView *srv) const;
+
+  // below here only boilerplate... :)
 
   // win32 stuff
   HWND m_hwnd;
@@ -26,11 +40,11 @@ private:
   // window message handler
   static LRESULT WINAPI WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-  // D3D stuff
-  ID3D11Device *g_pd3dDevice = nullptr;
-  ID3D11DeviceContext *g_pd3dDeviceContext = nullptr;
-  IDXGISwapChain *g_pSwapChain = nullptr;
-  ID3D11RenderTargetView *g_mainRenderTargetView = nullptr;
+  // D3D backend stuff
+  ID3D11Device *m_pd3dDevice = nullptr;
+  ID3D11DeviceContext *m_pd3dDeviceContext = nullptr;
+  IDXGISwapChain *m_pSwapChain = nullptr;
+  ID3D11RenderTargetView *m_mainRenderTargetView = nullptr;
 
   // helper functions
   bool CreateDeviceD3D();

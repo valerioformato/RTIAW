@@ -11,21 +11,37 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace RTIAW {
-App::App(ImVec2 pos, ImVec2 size) {
+App::App(const ImVec2 pos, const ImVec2 windowSize)
+    : m_windowSize{windowSize}, m_logger{spdlog::stdout_color_st("App")} {
+  // FIXME: remove after debugging
+  spdlog::set_level(spdlog::level::debug);
+
   // FIXME: FOR NOW ONLY WIN32... but this is outside the scope of the project :)
   // NOTE: taken from Imgui examples
 
   // Win32/D3D setup:
-  wc = {sizeof(WNDCLASSEX),  CS_CLASSDC, &App::WndMsgHandler, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
-        _T("ImGui Example"), NULL};
+  wc = {sizeof(WNDCLASSEX),
+        CS_CLASSDC,
+        &App::WndMsgHandler,
+        0L,
+        0L,
+        GetModuleHandle(nullptr),
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        _T("ImGui Example"),
+        nullptr};
 
   // Create application window
   // ImGui_ImplWin32_EnableDpiAwareness();
   ::RegisterClassEx(&wc);
-  m_hwnd = ::CreateWindow(wc.lpszClassName, _T("Dear ImGui DirectX11 Example"), WS_OVERLAPPEDWINDOW, 100, 100, 1280,
-                          800, NULL, NULL, wc.hInstance, this);
+  m_hwnd = ::CreateWindow(wc.lpszClassName, _T("Raytracing in a weekend!"), WS_OVERLAPPEDWINDOW,
+                          static_cast<UINT>(pos.x), static_cast<UINT>(pos.y), static_cast<UINT>(windowSize.x),
+                          static_cast<UINT>(windowSize.y), nullptr, nullptr, wc.hInstance, this);
 
-  // horrible hack around win32 API
+  // setup our image buffer
+  CreateImageBuffer();
 
   // Initialize Direct3D
   if (!CreateDeviceD3D()) {
@@ -51,12 +67,10 @@ App::App(ImVec2 pos, ImVec2 size) {
 
   // Setup Platform/Renderer backends
   ImGui_ImplWin32_Init(m_hwnd);
-  ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+  ImGui_ImplDX11_Init(m_pd3dDevice, m_pd3dDeviceContext);
 }
 
 App::~App() {
-  m_mainThread.join();
-
   // Cleanup
   ImGui_ImplDX11_Shutdown();
   ImGui_ImplWin32_Shutdown();
@@ -68,18 +82,35 @@ App::~App() {
 }
 
 void App::Run() {
+  auto *image_srv = DrawImageBuffer();
+
+  m_logger->debug("Run window size: {} x {}", m_windowSize.x, m_windowSize.y);
+
+  // test!
+  for (unsigned iy = 0; iy < m_windowSize.y; ++iy) {
+    for (unsigned ix = 0; ix < m_windowSize.x; ++ix) {
+      float dist_to_center = std::sqrt((ix - 0.5f * m_windowSize.x) * (ix - 0.5f * m_windowSize.x) +
+                                       (iy - 0.5f * m_windowSize.y) * (iy - 0.5f * m_windowSize.y));
+      ImVec4 value{0, 0, 0, 255};
+      if (dist_to_center < 100) {
+        value = ImVec4{255, 0, 0, 255};
+      }
+
+      unsigned int idx = 4 * (ix + iy * m_windowSize.x);
+      // m_logger->debug("ix, iy: {:4d}, {:4d} - {:8d}", ix, iy, idx);
+      m_imageBuffer[idx] = static_cast<uint8_t>(value.x);
+      m_imageBuffer[idx + 1] = static_cast<uint8_t>(value.y);
+      m_imageBuffer[idx + 2] = static_cast<uint8_t>(value.z);
+      m_imageBuffer[idx + 3] = static_cast<uint8_t>(value.w);
+    }
+  }
+
   // Main loop
   bool done = false;
   while (!done) {
     // Poll and handle messages (inputs, window resize, etc.)
-    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your
-    // inputs.
-    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-    // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two
-    // flags.
     MSG msg;
-    while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
+    while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
       ::TranslateMessage(&msg);
       ::DispatchMessage(&msg);
       if (msg.message == WM_QUIT)
@@ -93,24 +124,31 @@ void App::Run() {
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow(nullptr);
+    // my stuff here?
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+    ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::Begin("test", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
+    UpdateTexture2D(image_srv);
+    ImGui::Image(static_cast<void *>(image_srv), m_windowSize);
+    ImGui::End();
+    ImGui::PopStyleVar(2);
+
+    ImGui::Begin("test2");
+    ImGui::Text("Hello, world!");
+    ImGui::End();
 
     // Rendering
     ImGui::Render();
-    const float clear_color_with_alpha[4] = {m_defaultBkgColor.x * m_defaultBkgColor.w,
-                                             m_defaultBkgColor.y * m_defaultBkgColor.w,
-                                             m_defaultBkgColor.z * m_defaultBkgColor.w, m_defaultBkgColor.w};
-    g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
-    g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
+    m_pd3dDeviceContext->OMSetRenderTargets(1, &m_mainRenderTargetView, nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    g_pSwapChain->Present(1, 0); // Present with vsync
-    // g_pSwapChain->Present(0, 0); // Present without vsync
+    m_pSwapChain->Present(1, 0); // Present with vsync
   }
 }
 
 // Helper functions
-
 bool App::CreateDeviceD3D() {
   // Setup swap chain
   DXGI_SWAP_CHAIN_DESC sd;
@@ -129,17 +167,18 @@ bool App::CreateDeviceD3D() {
   sd.Windowed = TRUE;
   sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-  UINT createDeviceFlags = 0;
-  // createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
   D3D_FEATURE_LEVEL featureLevel;
-  const D3D_FEATURE_LEVEL featureLevelArray[2] = {
+  constexpr D3D_FEATURE_LEVEL featureLevelArray[2] = {
       D3D_FEATURE_LEVEL_11_0,
       D3D_FEATURE_LEVEL_10_0,
   };
-  if (D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, featureLevelArray, 2,
-                                    D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel,
-                                    &g_pd3dDeviceContext) != S_OK)
+
+  if (constexpr UINT createDeviceFlags = 0;
+      D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2,
+                                    D3D11_SDK_VERSION, &sd, &m_pSwapChain, &m_pd3dDevice, &featureLevel,
+                                    &m_pd3dDeviceContext) != S_OK) {
     return false;
+  }
 
   CreateRenderTarget();
   return true;
@@ -147,32 +186,104 @@ bool App::CreateDeviceD3D() {
 
 void App::CleanupDeviceD3D() {
   CleanupRenderTarget();
-  if (g_pSwapChain) {
-    g_pSwapChain->Release();
-    g_pSwapChain = NULL;
+  if (m_pSwapChain) {
+    m_pSwapChain->Release();
+    m_pSwapChain = nullptr;
   }
-  if (g_pd3dDeviceContext) {
-    g_pd3dDeviceContext->Release();
-    g_pd3dDeviceContext = NULL;
+  if (m_pd3dDeviceContext) {
+    m_pd3dDeviceContext->Release();
+    m_pd3dDeviceContext = nullptr;
   }
-  if (g_pd3dDevice) {
-    g_pd3dDevice->Release();
-    g_pd3dDevice = NULL;
+  if (m_pd3dDevice) {
+    m_pd3dDevice->Release();
+    m_pd3dDevice = nullptr;
   }
 }
 
 void App::CreateRenderTarget() {
-  ID3D11Texture2D *pBackBuffer;
-  g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-  g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_mainRenderTargetView);
+  ID3D11Texture2D *pBackBuffer = nullptr;
+  m_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+  if (!pBackBuffer) {
+    throw std::runtime_error("Could not create Imgui render buffer");
+  }
+  m_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &m_mainRenderTargetView);
   pBackBuffer->Release();
 }
 
 void App::CleanupRenderTarget() {
-  if (g_mainRenderTargetView) {
-    g_mainRenderTargetView->Release();
-    g_mainRenderTargetView = NULL;
+  if (m_mainRenderTargetView) {
+    m_mainRenderTargetView->Release();
+    m_mainRenderTargetView = nullptr;
   }
+}
+
+void App::ResizeWindow(const ImVec2 newSize) {
+  m_windowSize = newSize;
+  CreateImageBuffer();
+}
+
+void App::CreateImageBuffer() {
+  auto newBuffer = std::unique_ptr<uint8_t[]>(new uint8_t[BufferSize()]());
+  m_imageBuffer.swap(newBuffer);
+}
+
+ID3D11ShaderResourceView *App::DrawImageBuffer() const {
+  // Create texture
+  D3D11_TEXTURE2D_DESC desc{};
+  ZeroMemory(&desc, sizeof(desc));
+  desc.Width = static_cast<UINT>(m_windowSize.x);
+  desc.Height = static_cast<UINT>(m_windowSize.y);
+  desc.MipLevels = 1;
+  desc.ArraySize = 1;
+  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  desc.SampleDesc.Count = 1;
+  desc.Usage = D3D11_USAGE_DYNAMIC;
+  desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+  desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+  ID3D11Texture2D *pTexture = nullptr;
+  D3D11_SUBRESOURCE_DATA subResource{};
+  subResource.pSysMem = m_imageBuffer.get();
+  subResource.SysMemPitch = desc.Width * 4;
+  subResource.SysMemSlicePitch = 0;
+  m_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
+  if (!pTexture) {
+    throw std::runtime_error("Could not initialize image buffer texture");
+  }
+
+  ID3D11ShaderResourceView *out_srv;
+
+  // Create texture view
+  D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+  ZeroMemory(&srvDesc, sizeof(srvDesc));
+  srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+  srvDesc.Texture2D.MipLevels = desc.MipLevels;
+  srvDesc.Texture2D.MostDetailedMip = 0;
+  m_pd3dDevice->CreateShaderResourceView(pTexture, &srvDesc, &out_srv);
+  pTexture->Release();
+
+  return out_srv;
+}
+
+void App::UpdateTexture2D(ID3D11ShaderResourceView *srv) const {
+  ID3D11Resource *res;
+  srv->GetResource(&res);
+  D3D11_MAPPED_SUBRESOURCE mres;
+  m_pd3dDeviceContext->Map(res, 0, D3D11_MAP_WRITE_DISCARD, 0, &mres);
+
+  if (const auto width = static_cast<unsigned int>(m_windowSize.x); mres.RowPitch == width * 4) {
+    memcpy(mres.pData, m_imageBuffer.get(), BufferSize() * sizeof(uint8_t));
+  } else {
+    uint8_t *src = m_imageBuffer.get(), *dest = reinterpret_cast<uint8_t *>(mres.pData);
+    for (unsigned int iy = 0; iy < m_windowSize.y; ++iy) {
+      memcpy(dest, src, width * 4 * sizeof(uint8_t));
+      dest += mres.RowPitch;
+      src += width * 4;
+    }
+  }
+
+  m_pd3dDeviceContext->Unmap(res, 0);
 }
 
 // Win32 message handler
@@ -181,7 +292,6 @@ LRESULT WINAPI App::WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
     return true;
 
   App *pThis = nullptr;
-
   switch (msg) {
   case WM_NCCREATE:
     pThis = static_cast<App *>(reinterpret_cast<CREATESTRUCT *>(lParam)->lpCreateParams);
@@ -192,11 +302,16 @@ LRESULT WINAPI App::WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     break;
   case WM_SIZE:
+    // FIXME: Resizing should not be allowed once rendering is started!
+
     pThis = reinterpret_cast<App *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-    if (pThis->g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED) {
+    if (pThis->m_pd3dDevice != nullptr && wParam != SIZE_MINIMIZED) {
+      const ImVec2 newSize{static_cast<float>(LOWORD(lParam)), static_cast<float>(HIWORD(lParam))};
       pThis->CleanupRenderTarget();
-      pThis->g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+      pThis->m_pSwapChain->ResizeBuffers(0, static_cast<UINT>(newSize.x), static_cast<UINT>(newSize.y),
+                                         DXGI_FORMAT_UNKNOWN, 0);
       pThis->CreateRenderTarget();
+      pThis->ResizeWindow(newSize);
     }
     return 0;
   case WM_SYSCOMMAND:
@@ -206,7 +321,10 @@ LRESULT WINAPI App::WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
   case WM_DESTROY:
     ::PostQuitMessage(0);
     return 0;
+  default:
+    break;
   }
+
   return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 } // namespace RTIAW
