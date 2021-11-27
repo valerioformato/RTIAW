@@ -1,3 +1,5 @@
+set(MAIN_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 set(IMGUI_SOURCES
 "${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui.cpp"
 "${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_demo.cpp"
@@ -14,6 +16,8 @@ target_include_directories(imgui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/imgui")
 set(SOURCES
 "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
+add_subdirectory(App)
+
 add_executable(demo ${SOURCES})
-target_include_directories(demo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(demo PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only docopt imgui d3d11 d3dcompiler)
+target_include_directories(demo PRIVATE "${MAIN_SOURCE_DIR}")
+target_link_libraries(demo PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only docopt app)
