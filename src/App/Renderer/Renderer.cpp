@@ -47,13 +47,13 @@ void Renderer::Render(uint8_t *buffer) {
 
   m_state = RenderState::Running;
 
-  auto renderPixel = [this, buffer](glm::uvec2 pixelCoord) {
+  const std::vector<unsigned int> samples(m_samplesPerPixel, 0);
+  auto renderPixel = [this, buffer, &samples](glm::uvec2 pixelCoord) {
     if (m_state == RenderState::Stopped) {
       return;
     }
 
     // color pixel_color{0, 0, 0};
-    std::vector<unsigned int> samples(m_samplesPerPixel, 0);
     color pixel_color = std::accumulate(
         begin(samples), end(samples), color{0, 0, 0},
         [&pixelCoord, this](const auto &current_val, const auto &element) {
