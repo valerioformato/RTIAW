@@ -13,6 +13,9 @@ set(IMGUI_SOURCES
 add_library(imgui STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/imgui")
 
+add_library(glm INTERFACE)
+target_include_directories(glm INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/glm")
+
 set(SOURCES
 "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 

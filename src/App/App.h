@@ -1,13 +1,12 @@
 #ifndef RTIAW_window
 #define RTIAW_window
 
-#include <thread>
-
 #include <d3d11.h>
 #include <fmt/format.h>
 #include <imgui/imgui.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+
+#include "Renderer/Renderer.h"
 
 namespace RTIAW {
 class App {
@@ -23,6 +22,9 @@ private:
 
   // here we store our internal representation of the rendered image
   std::unique_ptr<uint8_t[]> m_imageBuffer;
+
+  // this is our big boy, who'll do all the work
+  std::unique_ptr<Render::Renderer> m_renderer;
 
   [[nodiscard]] size_t BufferSize() const { return static_cast<size_t>(m_windowSize.x * m_windowSize.y) * 4; }
   void ResizeWindow(const ImVec2 newSize);

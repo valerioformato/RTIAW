@@ -4,6 +4,7 @@
 
 #include <imgui/backends/imgui_impl_dx11.h>
 #include <imgui/backends/imgui_impl_win32.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include "App.h"
 
@@ -12,7 +13,8 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 
 namespace RTIAW {
 App::App(const ImVec2 pos, const ImVec2 windowSize)
-    : m_windowSize{windowSize}, m_logger{spdlog::stdout_color_st("App")} {
+    : m_windowSize{windowSize}, m_logger{spdlog::stdout_color_st("App")}, m_renderer{
+                                                                              std::make_unique<Render::Renderer>()} {
   // FIXME: remove after debugging
   spdlog::set_level(spdlog::level::debug);
 
@@ -43,7 +45,12 @@ App::App(const ImVec2 pos, const ImVec2 windowSize)
   // setup our image buffer
   CreateImageBuffer();
 
+  // and our main display window
   SetupMainWindow();
+
+  // testing!
+  m_renderer->SetImageSize(m_windowSize.x, m_windowSize.y);
+  m_renderer->Render(m_imageBuffer.get());
 }
 
 App::~App() {
@@ -61,25 +68,6 @@ void App::Run() {
   auto *image_srv = DrawImageBuffer();
 
   m_logger->debug("Run window size: {} x {}", m_windowSize.x, m_windowSize.y);
-
-  // test!
-  for (unsigned iy = 0; iy < m_windowSize.y; ++iy) {
-    for (unsigned ix = 0; ix < m_windowSize.x; ++ix) {
-      float dist_to_center = std::sqrt((ix - 0.5f * m_windowSize.x) * (ix - 0.5f * m_windowSize.x) +
-                                       (iy - 0.5f * m_windowSize.y) * (iy - 0.5f * m_windowSize.y));
-      ImVec4 value{0, 0, 0, 255};
-      if (dist_to_center < 100) {
-        value = ImVec4{255, 0, 0, 255};
-      }
-
-      unsigned int idx = 4 * (ix + iy * m_windowSize.x);
-      // m_logger->debug("ix, iy: {:4d}, {:4d} - {:8d}", ix, iy, idx);
-      m_imageBuffer[idx] = static_cast<uint8_t>(value.x);
-      m_imageBuffer[idx + 1] = static_cast<uint8_t>(value.y);
-      m_imageBuffer[idx + 2] = static_cast<uint8_t>(value.z);
-      m_imageBuffer[idx + 3] = static_cast<uint8_t>(value.w);
-    }
-  }
 
   // Main loop
   bool done = false;
