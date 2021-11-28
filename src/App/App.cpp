@@ -43,31 +43,7 @@ App::App(const ImVec2 pos, const ImVec2 windowSize)
   // setup our image buffer
   CreateImageBuffer();
 
-  // Initialize Direct3D
-  if (!CreateDeviceD3D()) {
-    CleanupDeviceD3D();
-    ::UnregisterClass(wc.lpszClassName, wc.hInstance);
-    throw std::runtime_error("Cannot initialize Direct3D device");
-  }
-
-  // Show the window
-  ::ShowWindow(m_hwnd, SW_SHOWDEFAULT);
-  ::UpdateWindow(m_hwnd);
-
-  // Imgui setup:
-  //
-  // Setup Dear ImGui context
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
-
-  // Setup Dear ImGui style
-  ImGui::StyleColorsDark();
-
-  // Setup Platform/Renderer backends
-  ImGui_ImplWin32_Init(m_hwnd);
-  ImGui_ImplDX11_Init(m_pd3dDevice, m_pd3dDeviceContext);
+  SetupMainWindow();
 }
 
 App::~App() {
@@ -225,6 +201,32 @@ void App::ResizeWindow(const ImVec2 newSize) {
 void App::CreateImageBuffer() {
   auto newBuffer = std::unique_ptr<uint8_t[]>(new uint8_t[BufferSize()]());
   m_imageBuffer.swap(newBuffer);
+}
+
+void App::SetupMainWindow() {
+  // Initialize Direct3D
+  if (!CreateDeviceD3D()) {
+    CleanupDeviceD3D();
+    ::UnregisterClass(wc.lpszClassName, wc.hInstance);
+    throw std::runtime_error("Cannot initialize Direct3D device");
+  }
+
+  // Show the window
+  ::ShowWindow(m_hwnd, SW_SHOWDEFAULT);
+  ::UpdateWindow(m_hwnd);
+
+  // Imgui setup:
+  //
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+
+  // Setup Platform/Renderer backends
+  ImGui_ImplWin32_Init(m_hwnd);
+  ImGui_ImplDX11_Init(m_pd3dDevice, m_pd3dDeviceContext);
 }
 
 ID3D11ShaderResourceView *App::DrawImageBuffer() const {

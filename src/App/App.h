@@ -28,6 +28,7 @@ private:
   void ResizeWindow(const ImVec2 newSize);
   void CreateImageBuffer();
 
+  void SetupMainWindow();
   [[nodiscard]] ID3D11ShaderResourceView *DrawImageBuffer() const;
   void UpdateTexture2D(ID3D11ShaderResourceView *srv) const;
 
