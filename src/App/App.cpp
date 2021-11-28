@@ -4,6 +4,8 @@
 
 #include <imgui/backends/imgui_impl_dx11.h>
 #include <imgui/backends/imgui_impl_win32.h>
+#include <imgui/imgui_internal.h>
+#include <magic_enum.hpp>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 #include "App.h"
@@ -48,9 +50,14 @@ App::App(const ImVec2 pos, const ImVec2 windowSize)
   // and our main display window
   SetupMainWindow();
 
-  // testing!
   m_renderer->SetImageSize(m_windowSize.x, m_windowSize.y);
-  m_renderer->Render(m_imageBuffer.get());
+  m_renderer->SetTargetBuffer(m_imageBuffer.get());
+
+  // testing!
+  // TODO: later on let this be picked in a ImGui dropdown maybe?
+  // m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::TestScene);
+  // m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::ThreeSpheres);
+  m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::DefaultScene);
 }
 
 App::~App() {
@@ -93,14 +100,32 @@ void App::Run() {
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::Begin("test", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
+    ImGui::Begin("Image", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
     UpdateTexture2D(image_srv);
     ImGui::Image(static_cast<void *>(image_srv), m_windowSize);
     ImGui::End();
     ImGui::PopStyleVar(2);
 
-    ImGui::Begin("test2");
-    ImGui::Text("Hello, world!");
+    ImGui::SetNextWindowSize(ImVec2{150, 200});
+    ImGui::Begin("Controls");
+    // TODO: change this if/when we'll support multiple scenes
+    ImGui::Text(fmt::format("Scene: {}", magic_enum::enum_name(m_renderer->Scene())).data());
+    ImGui::Text(magic_enum::enum_name(m_renderer->State()).data());
+    const bool startDisable = m_renderer->State() == Render::Renderer::RenderState::Running;
+    if (startDisable) {
+      ImGui::BeginDisabled();
+    }
+    if (ImGui::Button("Start!")) {
+      // (re-)initialize buffer
+      memset(m_imageBuffer.get(), 0, BufferSize());
+      m_renderer->StartRender();
+    }
+    if (startDisable) {
+      ImGui::EndDisabled();
+      if (ImGui::Button("Abort")) {
+        m_renderer->StopRender();
+      }
+    }
     ImGui::End();
 
     // Rendering

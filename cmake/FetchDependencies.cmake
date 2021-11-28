@@ -43,24 +43,3 @@ if(NOT spdlog_POPULATED)
   FetchContent_Populate(spdlog)
   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
-
-# === docopt ===
-FetchContent_Declare(docopt
-GIT_REPOSITORY https://github.com/docopt/docopt.cpp
-  GIT_TAG v0.6.3)
-FetchContent_GetProperties(docopt)
-if(NOT docopt_POPULATED)
-  FetchContent_Populate(docopt)
-  add_subdirectory(${docopt_SOURCE_DIR} ${docopt_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
-install(TARGETS docopt DESTINATION lib)
-
-# === SDL2 ===
-# FetchContent_Declare(SDL2
-# GIT_REPOSITORY "https://github.com/SDL-mirror/SDL.git"
-#   GIT_TAG release-2.0.14)
-# FetchContent_GetProperties(SDL2)
-# if(NOT sdl2_POPULATED)
-#     FetchContent_Populate(SDL2)
-#     add_subdirectory(${sdl2_SOURCE_DIR} ${sdl2_BINARY_DIR} EXCLUDE_FROM_ALL)
-# endif ()

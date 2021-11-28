@@ -23,4 +23,4 @@ add_subdirectory(App)
 
 add_executable(demo ${SOURCES})
 target_include_directories(demo PRIVATE "${MAIN_SOURCE_DIR}")
-target_link_libraries(demo PRIVATE docopt app)
+target_link_libraries(demo PRIVATE app)
