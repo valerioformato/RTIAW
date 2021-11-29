@@ -31,14 +31,20 @@ private:
   void CreateImageBuffer();
 
   void SetupMainWindow();
-  [[nodiscard]] ID3D11ShaderResourceView *DrawImageBuffer() const;
+  [[nodiscard]] ID3D11ShaderResourceView *CreateShaderBuffer() const;
   void UpdateTexture2D(ID3D11ShaderResourceView *srv) const;
+
+  void EnableWindowResize();
+  void DisableWindowResize();
 
   // below here only boilerplate... :)
 
   // win32 stuff
   HWND m_hwnd;
-  WNDCLASSEX wc; // literally no idea how win32 API works :\
+  LONG m_hwndDefaultStyle;
+  bool m_hwndResizeDisabled = false;
+  bool m_resized = false;
+  WNDCLASSEX wc; // literally no idea how win32 API works :p
 
   // window message handler
   static LRESULT WINAPI WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

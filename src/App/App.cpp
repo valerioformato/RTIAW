@@ -72,7 +72,7 @@ App::~App() {
 }
 
 void App::Run() {
-  auto *image_srv = DrawImageBuffer();
+  auto *image_srv = CreateShaderBuffer();
 
   m_logger->debug("Run window size: {} x {}", m_windowSize.x, m_windowSize.y);
 
@@ -84,8 +84,13 @@ void App::Run() {
     while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
       ::TranslateMessage(&msg);
       ::DispatchMessage(&msg);
-      if (msg.message == WM_QUIT)
+      if (m_resized) {
+        image_srv = CreateShaderBuffer();
+        m_resized = false;
+      }
+      if (msg.message == WM_QUIT) {
         done = true;
+      }
     }
     if (done)
       break;
@@ -114,10 +119,13 @@ void App::Run() {
     const bool startDisable = m_renderer->State() == Render::Renderer::RenderState::Running;
     if (startDisable) {
       ImGui::BeginDisabled();
+    } else {
+      EnableWindowResize();
     }
     if (ImGui::Button("Start!")) {
       // (re-)initialize buffer
       memset(m_imageBuffer.get(), 0, BufferSize());
+      DisableWindowResize();
       m_renderer->StartRender();
     }
     if (startDisable) {
@@ -209,6 +217,8 @@ void App::CleanupRenderTarget() {
 void App::ResizeWindow(const ImVec2 newSize) {
   m_windowSize = newSize;
   CreateImageBuffer();
+  m_renderer->SetImageSize(m_windowSize.x, m_windowSize.y);
+  m_renderer->SetTargetBuffer(m_imageBuffer.get());
 }
 
 void App::CreateImageBuffer() {
@@ -242,7 +252,7 @@ void App::SetupMainWindow() {
   ImGui_ImplDX11_Init(m_pd3dDevice, m_pd3dDeviceContext);
 }
 
-ID3D11ShaderResourceView *App::DrawImageBuffer() const {
+ID3D11ShaderResourceView *App::CreateShaderBuffer() const {
   // Create texture
   D3D11_TEXTURE2D_DESC desc{};
   ZeroMemory(&desc, sizeof(desc));
@@ -301,6 +311,19 @@ void App::UpdateTexture2D(ID3D11ShaderResourceView *srv) const {
   m_pd3dDeviceContext->Unmap(res, 0);
 }
 
+void App::EnableWindowResize() {
+  if (!m_hwndResizeDisabled)
+    return;
+  SetWindowLong(m_hwnd, GWL_STYLE, m_hwndDefaultStyle);
+  m_hwndResizeDisabled = false;
+}
+
+void App::DisableWindowResize() {
+  m_hwndDefaultStyle = GetWindowLong(m_hwnd, GWL_STYLE);
+  SetWindowLong(m_hwnd, GWL_STYLE, m_hwndDefaultStyle & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX);
+  m_hwndResizeDisabled = true;
+}
+
 // Win32 message handler
 LRESULT WINAPI App::WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   if (::ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
@@ -317,9 +340,8 @@ LRESULT WINAPI App::WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     break;
   case WM_SIZE:
-    // FIXME: Resizing should not be allowed once rendering is started!
-
     pThis = reinterpret_cast<App *>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
     if (pThis->m_pd3dDevice != nullptr && wParam != SIZE_MINIMIZED) {
       const ImVec2 newSize{static_cast<float>(LOWORD(lParam)), static_cast<float>(HIWORD(lParam))};
       pThis->CleanupRenderTarget();
@@ -327,6 +349,7 @@ LRESULT WINAPI App::WndMsgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
                                          DXGI_FORMAT_UNKNOWN, 0);
       pThis->CreateRenderTarget();
       pThis->ResizeWindow(newSize);
+      pThis->m_resized = true;
     }
     return 0;
   case WM_SYSCOMMAND:

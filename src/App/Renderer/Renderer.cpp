@@ -87,7 +87,7 @@ color Renderer::ShootRay(const Ray &ray, const HittableObject &scene, unsigned i
   if (depth == 0)
     return color(0, 0, 0);
 
-  if (const auto o_hitRecord = scene.Hit(ray, 0.001, RTIAW::Utils::infinity); o_hitRecord) {
+  if (const auto o_hitRecord = scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); o_hitRecord) {
     const auto &[p, normal, material, t, front_face] = o_hitRecord.value();
 
     if (auto sctr = material->Scatter(ray, o_hitRecord.value())) {

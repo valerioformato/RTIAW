@@ -114,8 +114,8 @@ public:
   template <typename Function_t, typename... Args>
 
   auto AddTask(Function_t &&function, Args &&...args)
-      -> std::future<typename std::result_of<Function_t(Args...)>::type> {
-    using return_t = typename std::result_of<Function_t(Args...)>::type;
+      -> std::future<typename std::invoke_result_t<Function_t, Args...>> {
+    using return_t = typename std::invoke_result_t<Function_t, Args...>;
 
     // Create packaged task
     auto task = std::make_shared<std::packaged_task<return_t()>>(
