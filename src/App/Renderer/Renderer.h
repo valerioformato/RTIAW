@@ -5,7 +5,7 @@
 #include <spdlog/spdlog.h>
 
 #include "Camera.h"
-#include "Shapes/HittableObjectList.h"
+#include "HittableObjectList.h"
 #include "ThreadPool.h"
 #include "Utils.h"
 
@@ -39,8 +39,8 @@ private:
   std::shared_ptr<spdlog::logger> m_logger;
 
   glm::uvec2 m_imageSize{0, 0};
-  unsigned int m_samplesPerPixel = 500;
-  unsigned int m_maxRayDepth = 50;
+  unsigned int m_samplesPerPixel = 32;
+  unsigned int m_maxRayDepth = 10;
 
   Scenes m_sceneType{Scenes::DefaultScene};
   HittableObjectList m_scene;
@@ -58,7 +58,7 @@ private:
 
   // actual internal implementation
   void Render(uint8_t *buffer);
-  color ShootRay(const Ray &ray, const HittableObject &scene, unsigned int depth);
+  color ShootRay(const Ray &ray, unsigned int depth);
   void WritePixelToBuffer(uint8_t *buffer, unsigned int ix, unsigned int iy, unsigned int samples_per_pixel,
                           color pixel_color) const;
 

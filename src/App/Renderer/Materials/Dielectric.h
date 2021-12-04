@@ -1,14 +1,17 @@
 #ifndef RTIAW_material_dielectric
 #define RTIAW_material_dielectric
 
-#include "Materials/Material.h"
+#include <optional>
+
+#include "HitRecord.h"
+#include "ScatteringRecord.h"
 
 namespace RTIAW::Render::Materials {
-class Dielectric : public Material {
+class Dielectric {
 public:
   Dielectric(const float refractionIndex) : m_refractionIndex(refractionIndex) {}
 
-  [[nodiscard]] std::optional<ScatteringResult> Scatter(const Ray &r_in, const HitRecord &rec) const override;
+  [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
 
 public:
   float m_refractionIndex;

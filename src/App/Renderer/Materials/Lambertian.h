@@ -1,14 +1,17 @@
 #ifndef RTIAW_material_lambertian
 #define RTIAW_material_lambertian
 
-#include "Materials/Material.h"
+#include <optional>
+
+#include "HitRecord.h"
+#include "ScatteringRecord.h"
 
 namespace RTIAW::Render::Materials {
-class Lambertian : public Material {
+class Lambertian {
 public:
   Lambertian(const color &albedo) : m_albedo(albedo) {}
 
-  [[nodiscard]] std::optional<ScatteringResult> Scatter(const Ray &r_in, const HitRecord &rec) const override;
+  [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
 
 public:
   color m_albedo;

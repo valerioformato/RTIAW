@@ -1,18 +1,14 @@
-#ifndef RTIAW_shapes_hittable
-#define RTIAW_shapes_hittable
+#ifndef RTIAW_hitrecord
+#define RTIAW_hitrecord
 
 #include <memory>
-#include <optional>
 
 #include "Ray.h"
 
 namespace RTIAW::Render {
-class Material;
-
 struct HitRecord {
   point3 p;
   vec3 normal;
-  std::shared_ptr<Material> mat_ptr;
   float t;
   bool front_face;
 
@@ -22,13 +18,5 @@ struct HitRecord {
   }
 };
 
-class HittableObject {
-public:
-  // HittableObject() = default;
-  virtual ~HittableObject() = default;
-
-  [[nodiscard]] virtual std::optional<HitRecord> Hit(const Ray &r, float t_min, float t_max) const = 0;
-};
 } // namespace RTIAW::Render
-
 #endif

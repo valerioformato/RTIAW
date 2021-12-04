@@ -7,8 +7,8 @@
 #include "Renderer.h"
 
 #include "App/App.h"
-#include "Materials/Material.h"
-#include "Shapes/HittableObjectList.h"
+//#include "Materials/Material.h"
+#include "HittableObjectList.h"
 
 #include <numeric>
 
@@ -60,7 +60,7 @@ void Renderer::Render(uint8_t *buffer) {
           const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
           const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
           Ray r = m_camera->NewRay(u, v);
-          return current_val + ShootRay(r, m_scene, m_maxRayDepth);
+          return current_val + ShootRay(r, m_maxRayDepth);
         });
     WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
   };
@@ -82,17 +82,17 @@ void Renderer::Render(uint8_t *buffer) {
   m_state = RenderState::Finished;
 }
 
-color Renderer::ShootRay(const Ray &ray, const HittableObject &scene, unsigned int depth) {
+color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
   // If we've exceeded the ray bounce limit, no more light is gathered.
   if (depth == 0)
     return color(0, 0, 0);
 
-  if (const auto o_hitRecord = scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); o_hitRecord) {
-    const auto &[p, normal, material, t, front_face] = o_hitRecord.value();
+  if (const auto &[o_hitRecord, o_scatterResult] = m_scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); o_hitRecord) {
+    const auto &[p, normal, t, front_face] = o_hitRecord.value();
 
-    if (auto sctr = material->Scatter(ray, o_hitRecord.value())) {
-      const auto &[attenuation, scattered] = sctr.value();
-      return attenuation * ShootRay(scattered, m_scene, depth - 1);
+    if (o_scatterResult) {
+      const auto &[attenuation, scattered] = o_scatterResult.value();
+      return attenuation * ShootRay(scattered, depth - 1);
     }
 
     return {0, 0, 0};

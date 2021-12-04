@@ -1,7 +1,7 @@
 #include "Shapes/Sphere.h"
 
 namespace RTIAW::Render::Shapes {
-std::optional<HitRecord> Sphere::Hit(const Ray &r, float t_min, float t_max) const {
+std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
 
   const vec3 oc = r.Origin() - m_center;
   const float a = glm::sq_length(r.Direction());
@@ -24,7 +24,6 @@ std::optional<HitRecord> Sphere::Hit(const Ray &r, float t_min, float t_max) con
   HitRecord result{};
   result.t = root;
   result.p = r.At(result.t);
-  result.mat_ptr = m_material;
   vec3 outward_normal = glm::normalize(result.p - m_center);
 
   // NOTE: I really don't like this, the book author is using negative radius to artificially invert all normals of the
