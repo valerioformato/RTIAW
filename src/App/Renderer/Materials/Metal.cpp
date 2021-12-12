@@ -5,7 +5,7 @@
 
 namespace RTIAW::Render::Materials {
 ScatteringRecord Metal::Scatter(const Ray &r_in, const HitRecord &rec) const {
-  vec3 reflected = glm::reflect(glm::normalize(r_in.Direction()), rec.normal);
+  vec3 reflected = glm::reflect(glm::normalize(r_in.m_direction), rec.normal);
   vec3 new_direction = reflected + m_fuzzyness * glm::sphericalRand(1.0f);
 
   if (glm::dot(new_direction, rec.normal) > 0) {

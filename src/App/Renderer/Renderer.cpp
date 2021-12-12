@@ -93,7 +93,7 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
     return {0, 0, 0};
   }
 
-  const vec3 unit_direction = glm::normalize(ray.Direction());
+  const vec3 unit_direction = glm::normalize(ray.m_direction);
   float t = 0.5f * (unit_direction.y + 1.0f);
   return (1.0f - t) * color{1.0, 1.0, 1.0} + t * color{0.5, 0.7, 1.0};
 }
