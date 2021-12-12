@@ -11,7 +11,7 @@ std::optional<ScatteringRecord> HittableObjectList::Hit(const Ray &r, float t_mi
     const vec3 oc = r.m_origin - sphere.m_center;
     const float half_b = glm::dot(oc, r.m_unit_direction);
 
-    const float discriminant = half_b * half_b - glm::sq_length(oc) + sphere.m_radius * sphere.m_radius;
+    const float discriminant = half_b * half_b - glm::dot(oc, oc) + sphere.m_radius * sphere.m_radius;
     if (discriminant < 0.f)
       continue;
     const float sqrtd = sqrt(discriminant);

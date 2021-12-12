@@ -16,8 +16,8 @@ void Renderer::SetScene(Scenes scene) {
   case Scenes::DefaultScene: {
     Camera::CameraOrientation orientation{point3(13, 2, 3), point3(0, 0, 0), vec3(0, 1, 0)};
 
-    auto dist_to_focus = 10.0f;
-    auto aperture = 0.1f;
+    const auto dist_to_focus = 10.0f;
+    const auto aperture = 0.1f;
 
     m_camera = std::make_unique<Camera>(orientation, 20.0f, AspectRatio(), aperture, dist_to_focus);
 
@@ -56,8 +56,9 @@ void Renderer::SetScene(Scenes scene) {
   case Scenes::ThreeSpheres: {
     Camera::CameraOrientation orientation{point3(3, 3, 2), point3(0, 0, -1), vec3(0, 1, 0)};
 
-    auto dist_to_focus = std::sqrt(glm::sq_length(orientation.lookfrom - orientation.lookat));
-    auto aperture = 1.0f;
+    const auto view_direction = orientation.lookfrom - orientation.lookat;
+    const auto dist_to_focus = std::sqrt(glm::dot(view_direction, view_direction));
+    const auto aperture = 0.1f;
 
     m_camera = std::make_unique<Camera>(orientation, 20.0f, AspectRatio(), aperture, dist_to_focus);
 
@@ -71,8 +72,9 @@ void Renderer::SetScene(Scenes scene) {
   case Scenes::TestScene: {
     Camera::CameraOrientation orientation{point3(0, 2, 13), point3(0, 0, 0), vec3(0, 1, 0)};
 
-    auto dist_to_focus = std::sqrt(glm::sq_length(orientation.lookfrom - orientation.lookat));
-    auto aperture = 0.1f;
+    const auto view_direction = orientation.lookfrom - orientation.lookat;
+    const auto dist_to_focus = std::sqrt(glm::dot(view_direction, view_direction));
+    const auto aperture = 0.1f;
 
     m_camera = std::make_unique<Camera>(orientation, 20.0f, AspectRatio(), aperture, dist_to_focus);
 

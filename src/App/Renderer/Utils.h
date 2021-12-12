@@ -3,11 +3,6 @@
 
 #include <glm/glm/glm.hpp>
 
-namespace glm {
-// not really needed, but it makes it easier to follow the book...
-template <int N, typename T, qualifier P> T sq_length(const vec<N, T, P> &x) { return dot(x, x); }
-} // namespace glm
-
 namespace RTIAW::Utils {
 // Constants
 constexpr float infinity = std::numeric_limits<float>::infinity();
