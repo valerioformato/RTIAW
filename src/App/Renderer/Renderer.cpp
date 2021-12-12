@@ -47,25 +47,26 @@ void Renderer::Render(uint8_t *buffer) {
 
   m_state = RenderState::Running;
 
-  auto renderPixel = [this, buffer](glm::uvec2 pixelCoord) {
+  auto renderLine = [this, buffer](int j) {
     if (m_state == RenderState::Stopped) {
       return;
     }
 
-    color pixel_color{0, 0, 0};
-    for (unsigned int sample = 0; sample < m_samplesPerPixel; ++sample) {
-      const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
-      const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
-      Ray r = m_camera->NewRay(u, v);
-      pixel_color += ShootRay(r, m_maxRayDepth);
+    for (int i = 0; i < m_imageSize.x; ++i) {
+      const auto pixelCoord = glm::uvec2{i, j};
+      color pixel_color{0, 0, 0};
+      for (unsigned int sample = 0; sample < m_samplesPerPixel; ++sample) {
+        const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
+        const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
+        Ray r = m_camera->NewRay(u, v);
+        pixel_color += ShootRay(r, m_maxRayDepth);
+      }
+      WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
     }
-    WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
   };
 
   for (int j = m_imageSize.y - 1; j >= 0; --j) {
-    for (int i = 0; i < m_imageSize.x; ++i) {
-      m_threadPool.AddTask(renderPixel, glm::uvec2{i, j}); // renderPixel({i, j});
-    }
+      m_threadPool.AddTask(renderLine, j); // renderPixel({i, j});
   }
 
   // wait until all tasks are done...
