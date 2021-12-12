@@ -2,6 +2,11 @@
 
 #include "HittableObjectList.h"
 
+// helper type for the visitor #4
+template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 namespace RTIAW::Render {
 std::optional<ScatteringRecord> HittableObjectList::Hit(const Ray &r, float t_min, float t_max) const {
   float closest_so_far = t_max;
@@ -41,12 +46,11 @@ std::optional<ScatteringRecord> HittableObjectList::Hit(const Ray &r, float t_mi
 
   const auto record = m_spheres[closest_sphere_idx].GetHitRecord(closest_so_far, r);
 
-  if (closest_sphere_idx >= m_lambertian_offset)
-    return m_lambertian_materials[closest_sphere_idx - m_lambertian_offset].Scatter(r, record);
-
-  if (closest_sphere_idx >= m_metal_offset)
-    return m_metal_materials[closest_sphere_idx - m_metal_offset].Scatter(r, record);
-
-  return m_dielectric_materials[closest_sphere_idx].Scatter(r, record);
+  return std::visit(overloaded{
+                        [&](const Materials::Lambertian &lambertian) { return lambertian.Scatter(r, record); },
+                        [&](const Materials::Metal &metal) { return metal.Scatter(r, record); },
+                        [&](const Materials::Dielectric &dielectric) { return dielectric.Scatter(r, record); },
+                    },
+                    m_materials[closest_sphere_idx]);
 }
 } // namespace RTIAW::Render
