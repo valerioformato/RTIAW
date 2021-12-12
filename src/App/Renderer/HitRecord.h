@@ -9,8 +9,8 @@ namespace RTIAW::Render {
 struct HitRecord {
   point3 p;
   vec3 normal;
-  float t;
-  bool front_face;
+  float t = -1;
+  bool front_face = true;
 
   inline void SetFaceNormal(const Ray &r, const vec3 &outward_normal) {
     front_face = glm::dot(r.Direction(), outward_normal) < 0;

@@ -1,8 +1,6 @@
 #ifndef RTIAW_material_metal
 #define RTIAW_material_metal
 
-#include <optional>
-
 #include "HitRecord.h"
 #include "ScatteringRecord.h"
 
@@ -11,7 +9,7 @@ class Metal {
 public:
   Metal(const color &albedo, float fuzzyness) : m_albedo(albedo), m_fuzzyness{fuzzyness < 1.0f ? fuzzyness : 1.0f} {}
 
-  [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
+  [[nodiscard]] ScatteringRecord Scatter(const Ray &r_in, const HitRecord &rec) const;
 
 public:
   color m_albedo;

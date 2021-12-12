@@ -7,20 +7,28 @@
 #include "HittableObject.h"
 
 namespace RTIAW::Render {
+using HitResult = std::pair<HitRecord, ScatteringRecord>;
+
 class HittableObjectList {
 public:
   HittableObjectList() = default;
 
-  void Clear() { objects.clear(); }
-  void Add(const HittableObject &object) { objects.push_back(object); }
-  void Add(HittableObject &&object) { objects.push_back(object); }
+  inline void Clear() {
+    m_dielectrics.clear();
+    m_lambertians.clear();
+    m_metals.clear();
+  }
 
-  template <typename... Args> void Construct(Args &&...args) { objects.emplace_back(std::forward<Args>(args)...); }
+  inline void Add(Shapes::Sphere sphere, Materials::Dielectric material) { m_dielectrics.emplace_back(sphere, material); }
+  inline void Add(Shapes::Sphere sphere, Materials::Lambertian material) { m_lambertians.emplace_back(sphere, material); }
+  inline void Add(Shapes::Sphere sphere, Materials::Metal material) { m_metals.emplace_back(sphere, material); }
 
   [[nodiscard]] HitResult Hit(const Ray &r, float t_min, float t_max) const;
 
-public:
-  std::vector<HittableObject> objects;
+private:
+  std::vector<DielectricSphere> m_dielectrics;
+  std::vector<LambertianSphere> m_lambertians;
+  std::vector<MetalSphere> m_metals;
 };
 } // namespace RTIAW::Render
 

@@ -8,10 +8,30 @@ HitResult HittableObjectList::Hit(const Ray &r, float t_min, float t_max) const 
 
   HitResult result{};
 
-  for (const auto &object : objects) {
-    if (const auto &[temp_hit, scatter] = object.Hit(r, t_min, closest_so_far); temp_hit) {
-      closest_so_far = temp_hit.value().t;
-      result = {temp_hit, scatter};
+  for (const auto &dielectric : m_dielectrics) {
+    HitRecord record = dielectric.m_sphere.Hit(r, t_min, closest_so_far);
+    if (record.t != -1) // valid, i.e. closest
+    {
+      closest_so_far = record.t;
+      result = {record, dielectric.m_material.Scatter(r, record)};
+    }
+  }
+
+  for (const auto &lambertian : m_lambertians) {
+    HitRecord record = lambertian.m_sphere.Hit(r, t_min, closest_so_far);
+    if (record.t != -1) // valid, i.e. closest
+    {
+      closest_so_far = record.t;
+      result = {record, lambertian.m_material.Scatter(r, record)};
+    }
+  }
+
+  for (const auto &metal : m_metals) {
+    HitRecord record = metal.m_sphere.Hit(r, t_min, closest_so_far);
+    if (record.t != -1) // valid, i.e. closest
+    {
+      closest_so_far = record.t;
+      result = {record, metal.m_material.Scatter(r, record)};
     }
   }
 

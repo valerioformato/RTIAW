@@ -5,7 +5,7 @@ set(RENDERER_SOURCES
 "${CMAKE_CURRENT_SOURCE_DIR}/Materials/Dielectric.cpp"
 
 "${CMAKE_CURRENT_SOURCE_DIR}/Camera.cpp"
-"${CMAKE_CURRENT_SOURCE_DIR}/HittableObject.cpp"
+
 "${CMAKE_CURRENT_SOURCE_DIR}/HittableObjectList.cpp" 
 "${CMAKE_CURRENT_SOURCE_DIR}/Renderer.cpp"
 "${CMAKE_CURRENT_SOURCE_DIR}/Ray.cpp"

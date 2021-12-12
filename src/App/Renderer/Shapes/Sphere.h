@@ -13,7 +13,7 @@ public:
   Sphere() = default;
   Sphere(point3 center, float radius) : m_center{center}, m_radius{radius} {};
 
-  [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
+  HitRecord Hit(const Ray &r, const float t_min, const float t_max) const;
 
 public:
   point3 m_center{0, 0, 0};

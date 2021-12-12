@@ -1,7 +1,7 @@
 #include "Shapes/Sphere.h"
 
 namespace RTIAW::Render::Shapes {
-std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
+HitRecord Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
 
   const vec3 oc = r.Origin() - m_center;
   const float a = glm::sq_length(r.Direction());
@@ -10,7 +10,7 @@ std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const floa
 
   const float discriminant = half_b * half_b - a * c;
   if (discriminant < 0)
-    return std::optional<HitRecord>{};
+    return {};
   const float sqrtd = sqrt(discriminant);
 
   // Find the nearest root that lies in the acceptable range.
@@ -18,10 +18,10 @@ std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const floa
   if (root < t_min || t_max < root) {
     root = (-half_b + sqrtd) / a;
     if (root < t_min || t_max < root)
-      return std::optional<HitRecord>{};
+      return {};
   }
 
-  HitRecord result{};
+  HitRecord result;
   result.t = root;
   result.p = r.At(result.t);
   vec3 outward_normal = glm::normalize(result.p - m_center);

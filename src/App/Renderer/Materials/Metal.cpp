@@ -1,11 +1,10 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/random.hpp>
 
-#include "HittableObject.h"
 #include "Materials/Metal.h"
 
 namespace RTIAW::Render::Materials {
-std::optional<ScatteringRecord> Metal::Scatter(const Ray &r_in, const HitRecord &rec) const {
+ScatteringRecord Metal::Scatter(const Ray &r_in, const HitRecord &rec) const {
   vec3 reflected = glm::reflect(glm::normalize(r_in.Direction()), rec.normal);
   vec3 new_direction = reflected + m_fuzzyness * glm::sphericalRand(1.0f);
 
@@ -13,6 +12,6 @@ std::optional<ScatteringRecord> Metal::Scatter(const Ray &r_in, const HitRecord 
     return ScatteringRecord{m_albedo, Ray{rec.p, new_direction}};
   }
 
-  return std::optional<ScatteringRecord>{};
+  return ScatteringRecord{};
 }
 } // namespace RTIAW::Render::Materials

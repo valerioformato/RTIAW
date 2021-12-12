@@ -87,13 +87,10 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
   if (depth == 0)
     return color(0, 0, 0);
 
-  if (const auto &[o_hitRecord, o_scatterResult] = m_scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); o_hitRecord) {
-    const auto &[p, normal, t, front_face] = o_hitRecord.value();
-
-    if (o_scatterResult) {
-      const auto &[attenuation, scattered] = o_scatterResult.value();
-      return attenuation * ShootRay(scattered, depth - 1);
-    }
+  if (auto result = m_scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); result.first.t != -1)
+  {
+    if (result.second.attenuation != color{0, 0, 0})
+        return result.second.attenuation * ShootRay(result.second.ray, depth - 1);
 
     return {0, 0, 0};
   }
