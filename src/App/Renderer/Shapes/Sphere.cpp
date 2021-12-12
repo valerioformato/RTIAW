@@ -4,19 +4,18 @@ namespace RTIAW::Render::Shapes {
 float Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
 
   const vec3 oc = r.m_origin - m_center;
-  const float a = glm::sq_length(r.m_direction);
-  const float half_b = glm::dot(oc, r.m_direction);
+  const float half_b = glm::dot(oc, r.m_unit_direction);
   const float c = glm::sq_length(oc) - m_radius * m_radius;
 
-  const float discriminant = half_b * half_b - a * c;
+  const float discriminant = half_b * half_b - c;
   if (discriminant < 0)
     return t_max;
   const float sqrtd = sqrt(discriminant);
 
   // Find the nearest root that lies in the acceptable range.
-  float root = (-half_b - sqrtd) / a;
+  float root = -half_b - sqrtd;
   if (root < t_min || t_max < root) {
-    root = (-half_b + sqrtd) / a;
+    root = -half_b + sqrtd;
     if (root < t_min || t_max < root)
       return t_max;
   }
