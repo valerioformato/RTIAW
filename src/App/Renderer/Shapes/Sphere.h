@@ -13,7 +13,7 @@ public:
   Sphere() = default;
   Sphere(point3 center, float radius) : m_center{center}, m_radius{radius} {};
 
-  HitRecord Hit(const Ray &r, const float t_min, const float t_max) const;
+  void Hit(HitRecord &record, const Ray &r, const float t_min, const float t_max) const;
 
 public:
   point3 m_center{0, 0, 0};
