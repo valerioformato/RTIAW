@@ -8,15 +8,15 @@ std::optional<ScatteringRecord> HittableObjectList::Hit(const Ray &r, float t_mi
 
   std::optional<ScatteringRecord> result;
 
-  const auto hit_spheres = [&](const auto &objects) {
-    size_t closest_obj_idx = -1;
-    for (size_t obj_idx = 0; obj_idx < objects.size(); ++obj_idx) {
-      const auto &object = objects[obj_idx];
-      const vec3 oc = r.m_origin - object.m_sphere.m_center;
+  const auto hit_spheres = [&](const auto &spheres) -> size_t {
+    size_t closest_sphere_idx = -1;
+    for (size_t sphere_idx = 0; sphere_idx < spheres.size(); ++sphere_idx) {
+      const auto &sphere = spheres[sphere_idx];
+      const vec3 oc = r.m_origin - sphere.m_center;
       const float half_b = glm::dot(oc, r.m_unit_direction);
 
       const float discriminant =
-          half_b * half_b - glm::sq_length(oc) + object.m_sphere.m_radius * object.m_sphere.m_radius;
+          half_b * half_b - glm::sq_length(oc) + sphere.m_radius * sphere.m_radius;
       if (discriminant < 0.f)
         continue;
       const float sqrtd = sqrt(discriminant);
@@ -31,19 +31,30 @@ std::optional<ScatteringRecord> HittableObjectList::Hit(const Ray &r, float t_mi
 
       if (root < closest_so_far) {
         closest_so_far = root;
-        closest_obj_idx = obj_idx;
+        closest_sphere_idx = sphere_idx;
       }
     }
-    if (closest_obj_idx != size_t(-1)) {
-      const auto &object = objects[closest_obj_idx];
-      const auto record = object.m_sphere.GetHitRecord(closest_so_far, r);
-      result = object.m_material.Scatter(r, record);
-    }
+    return closest_sphere_idx;
   };
 
-  hit_spheres(m_lambertians);
-  hit_spheres(m_dielectrics);
-  hit_spheres(m_metals);
+
+  const auto lambertian_idx = hit_spheres(m_lambertian_spheres);
+  if (lambertian_idx != size_t(-1)) {
+    const auto record = m_lambertian_spheres[lambertian_idx].GetHitRecord(closest_so_far, r);
+    result = m_lambertian_materials[lambertian_idx].Scatter(r, record);
+  }
+
+  const auto dielectric_idx = hit_spheres(m_dielectric_spheres);
+  if (dielectric_idx != size_t(-1)) {
+    const auto record = m_dielectric_spheres[dielectric_idx].GetHitRecord(closest_so_far, r);
+    result = m_dielectric_materials[dielectric_idx].Scatter(r, record);
+  }
+
+  const auto metal_idx = hit_spheres(m_metal_spheres);
+  if (metal_idx != size_t(-1)) {
+    const auto record = m_metal_spheres[metal_idx].GetHitRecord(closest_so_far, r);
+    result = m_metal_materials[metal_idx].Scatter(r, record);
+  }
 
   return result;
 }

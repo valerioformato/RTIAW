@@ -1,7 +1,6 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/random.hpp>
 
-#include "HittableObject.h"
 #include "Materials/Lambertian.h"
 
 namespace RTIAW::Render::Materials {
