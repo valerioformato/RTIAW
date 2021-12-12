@@ -9,7 +9,7 @@ class Lambertian {
 public:
   Lambertian(const color &albedo) : m_albedo(albedo) {}
 
-  [[nodiscard]] ScatteringRecord Scatter(const Ray &r_in, const HitRecord &rec) const;
+  [[nodiscard]] ScatteringRecord Scatter(const Ray &, const HitRecord &rec) const;
 
 public:
   color m_albedo;
