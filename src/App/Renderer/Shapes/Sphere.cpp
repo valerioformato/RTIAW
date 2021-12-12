@@ -1,7 +1,7 @@
 #include "Shapes/Sphere.h"
 
 namespace RTIAW::Render::Shapes {
-void Sphere::Hit(HitRecord& record, const Ray &r, const float t_min, const float t_max) const {
+float Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
 
   const vec3 oc = r.m_origin - m_center;
   const float a = glm::sq_length(r.m_direction);
@@ -10,7 +10,7 @@ void Sphere::Hit(HitRecord& record, const Ray &r, const float t_min, const float
 
   const float discriminant = half_b * half_b - a * c;
   if (discriminant < 0)
-    return;
+    return t_max;
   const float sqrtd = sqrt(discriminant);
 
   // Find the nearest root that lies in the acceptable range.
@@ -18,12 +18,17 @@ void Sphere::Hit(HitRecord& record, const Ray &r, const float t_min, const float
   if (root < t_min || t_max < root) {
     root = (-half_b + sqrtd) / a;
     if (root < t_min || t_max < root)
-      return;
+      return t_max;
   }
 
+  return root;
+}
 
+HitRecord Sphere::GetHitRecord(float root, const Ray &r) const {
+  HitRecord record;
   record.t = root;
   record.p = r.At(record.t);
+
   vec3 outward_normal = glm::normalize(record.p - m_center);
 
   // NOTE: I really don't like this, the book author is using negative radius to artificially invert all normals of the
@@ -32,5 +37,7 @@ void Sphere::Hit(HitRecord& record, const Ray &r, const float t_min, const float
     outward_normal *= -1.0f;
 
   record.SetFaceNormal(r, outward_normal);
+  return record;
 }
+
 } // namespace RTIAW::Render::Shapes

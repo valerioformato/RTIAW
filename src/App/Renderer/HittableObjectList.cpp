@@ -7,46 +7,47 @@ std::optional<ScatteringRecord> HittableObjectList::Hit(const Ray &r, float t_mi
   float closest_so_far = t_max;
 
   std::optional<ScatteringRecord> result;
-  HitRecord record;
-  record.t = t_max;
 
   const DielectricSphere *closest_dielectric = nullptr;
   for (const auto &object : m_dielectrics) {
-    object.m_sphere.Hit(record, r, t_min, closest_so_far);
-    if (record.t < closest_so_far) // valid, i.e. closest
+    const auto proximity = object.m_sphere.Hit(r, t_min, closest_so_far);
+    if (proximity < closest_so_far)
     {
-      closest_so_far = record.t;
+      closest_so_far = proximity;
       closest_dielectric = &object;
     }
   }
-  if (closest_dielectric)
+  if (closest_dielectric) {
+    const auto record = closest_dielectric->m_sphere.GetHitRecord(closest_so_far, r);
     result = closest_dielectric->m_material.Scatter(r, record);
-
+  }
 
   const LambertianSphere *closest_lambertian = nullptr;
   for (const auto &object : m_lambertians) {
-    object.m_sphere.Hit(record, r, t_min, closest_so_far);
-    if (record.t < closest_so_far) // valid, i.e. closest
+    const auto proximity = object.m_sphere.Hit(r, t_min, closest_so_far);
+    if (proximity < closest_so_far)
     {
-      closest_so_far = record.t;
+      closest_so_far = proximity;
       closest_lambertian = &object;
     }
   }
-  if (closest_lambertian)
+  if (closest_lambertian) {
+    const auto record = closest_lambertian->m_sphere.GetHitRecord(closest_so_far, r);
     result = closest_lambertian->m_material.Scatter(r, record);
-
+  }
 
   const MetalSphere *closest_metal = nullptr;
   for (const auto &object : m_metals) {
-    object.m_sphere.Hit(record, r, t_min, closest_so_far);
-    if (record.t < closest_so_far) // valid, i.e. closest
-    {
-      closest_so_far = record.t;
+    const auto proximity = object.m_sphere.Hit(r, t_min, closest_so_far);
+    if (proximity < closest_so_far) {
+      closest_so_far = proximity;
       closest_metal = &object;
     }
   }
-  if (closest_metal)
+  if (closest_metal) {
+    const auto record = closest_metal->m_sphere.GetHitRecord(closest_so_far, r);
     result = closest_metal->m_material.Scatter(r, record);
+  }
 
   return result;
 }
