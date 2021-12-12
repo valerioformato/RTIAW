@@ -9,6 +9,12 @@ std::optional<ScatteringRecord> HittableObjectList::Hit(const Ray &r, float t_mi
   for (size_t sphere_idx = 0; sphere_idx < m_spheres.size(); ++sphere_idx) {
     const auto &sphere = m_spheres[sphere_idx];
     const vec3 oc = r.m_origin - sphere.m_center;
+
+    // prune if sphere is too far away from ray
+    const auto cp = oc.x * r.m_unit_direction.y - oc.y * r.m_unit_direction.x;
+    if (std::abs(cp) > sphere.m_radius)
+      continue;
+
     const float half_b = glm::dot(oc, r.m_unit_direction);
 
     const float discriminant = half_b * half_b - glm::dot(oc, oc) + sphere.m_radius * sphere.m_radius;
