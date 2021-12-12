@@ -87,10 +87,10 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
   if (depth == 0)
     return color(0, 0, 0);
 
-  if (auto result = m_scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); result.first.t != -1)
+  if (auto result = m_scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); result)
   {
-    if (result.second.attenuation != color{0, 0, 0})
-        return result.second.attenuation * ShootRay(result.second.ray, depth - 1);
+    if (result->attenuation != color{0, 0, 0})
+      return result->attenuation * ShootRay(result->ray, depth - 1);
 
     return {0, 0, 0};
   }

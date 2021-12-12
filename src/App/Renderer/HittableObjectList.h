@@ -2,12 +2,12 @@
 #define RTIAW_hittableobjectlist
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "HittableObject.h"
 
 namespace RTIAW::Render {
-using HitResult = std::pair<HitRecord, ScatteringRecord>;
 
 class HittableObjectList {
 public:
@@ -23,7 +23,7 @@ public:
   inline void Add(Shapes::Sphere sphere, Materials::Lambertian material) { m_lambertians.emplace_back(sphere, material); }
   inline void Add(Shapes::Sphere sphere, Materials::Metal material) { m_metals.emplace_back(sphere, material); }
 
-  [[nodiscard]] HitResult Hit(const Ray &r, float t_min, float t_max) const;
+  [[nodiscard]] std::optional<ScatteringRecord> Hit(const Ray &r, float t_min, float t_max) const;
 
 private:
   std::vector<DielectricSphere> m_dielectrics;
