@@ -26,7 +26,9 @@ private:
   // this is our big boy, who'll do all the work
   std::unique_ptr<Render::Renderer> m_renderer;
 
-  [[nodiscard]] size_t BufferSize() const { return static_cast<size_t>(m_windowSize.x * m_windowSize.y) * 4; }
+  [[nodiscard]] size_t BufferSize() const {
+    return static_cast<size_t>(m_windowSize.x) * static_cast<size_t>(m_windowSize.y) * 4l;
+  }
   void ResizeWindow(const ImVec2 newSize);
   void CreateImageBuffer();
 
