@@ -7,7 +7,7 @@ template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 namespace RTIAW::Render {
 std::optional<HitRecord> HittableObject::Hit(const Ray &r, float t_min, float t_max) const {
-  constexpr std::optional<HitRecord> empty_result{};
+  static constexpr std::optional<HitRecord> empty_result{};
 
   const auto hitr = std::visit(
       overloaded{
