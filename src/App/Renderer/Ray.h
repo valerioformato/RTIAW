@@ -7,14 +7,12 @@ namespace RTIAW::Render {
 class Ray {
 public:
   constexpr Ray() = default;
-  constexpr Ray(point3 origin, vec3 direction) : m_origin{origin}, m_direction{direction} {}
+  Ray(point3 origin, vec3 direction) : origin{origin}, direction{glm::normalize(direction)} {}
 
-  //[[nodiscard]] constexpr point3 Origin() const { return m_origin; }
-  //[[nodiscard]] constexpr vec3 Direction() const { return m_direction; }
-  point3 m_origin{0, 0, 0};
-  vec3 m_direction{0, 0, 0};
+  point3 origin{0, 0, 0};
+  vec3 direction{0, 0, 0};
 
-  [[nodiscard]] constexpr point3 At(float t) const { return m_origin + m_direction * t; }
+  [[nodiscard]] constexpr point3 At(float t) const { return origin + direction * t; }
 
 private:
 };

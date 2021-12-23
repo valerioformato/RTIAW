@@ -11,7 +11,7 @@ namespace RTIAW::Render::Materials {
 std::optional<ScatteringRecord> Dielectric::Scatter(const Ray &r_in, const HitRecord &rec) const {
   float refraction_ratio = rec.front_face ? (1.0f / m_refractionIndex) : m_refractionIndex;
 
-  const vec3 unit_direction = glm::normalize(r_in.m_direction);
+  const vec3 unit_direction = r_in.m_direction;
   float cos_theta = std::min(glm::dot(-unit_direction, rec.normal), 1.0f);
   float sin_theta = std::sqrt(1.0f - cos_theta * cos_theta);
 
