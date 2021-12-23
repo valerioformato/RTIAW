@@ -65,16 +65,23 @@ void Renderer::Render(uint8_t *buffer) {
     WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
   };
 
+  std::vector<std::future<void>> futures;
+
   for (int j = m_imageSize.y - 1; j >= 0; --j) {
     for (int i = 0; i < m_imageSize.x; ++i) {
-      m_threadPool.AddTask(renderPixel, glm::uvec2{i, j}); // renderPixel({i, j});
+      // single threaded:
+      // renderPixel({i, j});
+
+      // multi threaded:
+      futures.push_back(m_threadPool.AddTask(renderPixel, glm::uvec2{i, j})); 
     }
   }
 
   // wait until all tasks are done...
-  while (!m_threadPool.IsEmpty()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  }
+  std::for_each(begin(futures), end(futures), [](auto &future) { future.wait(); });
+  //while (!m_threadPool.IsEmpty()) {
+  //  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  //}
 
   auto stopTime = std::chrono::system_clock::now();
   m_logger->debug("Rendering took {}", std::chrono::duration_cast<std::chrono::seconds>(stopTime - startTime));
@@ -98,9 +105,12 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
     return {0, 0, 0};
   }
 
+  constexpr color white{1.0, 1.0, 1.0};
+  constexpr color azure{0.5, 0.7, 1.0};
+
   const vec3 unit_direction = glm::normalize(ray.Direction());
   float t = 0.5f * (unit_direction.y + 1.0f);
-  return (1.0f - t) * color{1.0, 1.0, 1.0} + t * color{0.5, 0.7, 1.0};
+  return (1.0f - t) * white + t * azure;
 }
 
 void Renderer::WritePixelToBuffer(uint8_t *buffer, unsigned int ix, unsigned int iy, unsigned int samples_per_pixel,
