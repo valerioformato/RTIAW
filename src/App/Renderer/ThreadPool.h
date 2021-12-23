@@ -51,7 +51,7 @@ public:
   Pool() : Pool(std::thread::hardware_concurrency()) {}
 
   // Construct ( thread count )
-  Pool(const std::size_t thread_count)
+  explicit Pool(const std::size_t thread_count)
       : m_should_stop_processing(false), m_is_emergency_stop(false), m_is_paused(false) {
     // Sanity
     if (thread_count == 0)
@@ -119,7 +119,7 @@ public:
 
     // Create packaged task
     auto task = std::make_shared<std::packaged_task<return_t()>>(
-        std::bind(std::forward<Function_t>(function), std::forward<Args>(args)...));
+        [Func = std::forward<Function_t>(function), capture0 = std::forward<Args...>(args...)] { return Func(capture0); });
 
     std::future<return_t> result = task->get_future();
 
