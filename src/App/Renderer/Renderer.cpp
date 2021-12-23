@@ -106,7 +106,7 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
   constexpr color white{1.0, 1.0, 1.0};
   constexpr color azure{0.5, 0.7, 1.0};
 
-  const vec3 unit_direction = glm::normalize(ray.Direction());
+  const vec3 unit_direction = glm::normalize(ray.m_direction);
   float t = 0.5f * (unit_direction.y + 1.0f);
   return (1.0f - t) * white + t * azure;
 }
