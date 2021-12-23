@@ -3,9 +3,9 @@
 namespace RTIAW::Render::Shapes {
 std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
 
-  const vec3 oc = r.m_origin - m_center;
-  const float a = glm::sq_length(r.m_direction);
-  const float half_b = glm::dot(oc, r.m_direction);
+  const vec3 oc = r.origin - m_center;
+  const float a = glm::sq_length(r.direction);
+  const float half_b = glm::dot(oc, r.direction);
   const float c = glm::sq_length(oc) - m_radius * m_radius;
 
   const float discriminant = half_b * half_b - a * c;

@@ -106,7 +106,7 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
   constexpr color white{1.0, 1.0, 1.0};
   constexpr color azure{0.5, 0.7, 1.0};
 
-  float t = 0.5f * (ray.m_direction.y + 1.0f);
+  float t = 0.5f * (ray.direction.y + 1.0f);
   return (1.0f - t) * white + t * azure;
 }
 
