@@ -6,8 +6,8 @@ template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 namespace RTIAW::Render {
-HitResult HittableObject::Hit(const Ray &r, float t_min, float t_max) const {
-  constexpr HitResult empty_result{{}, {}};
+std::optional<HitRecord> HittableObject::Hit(const Ray &r, float t_min, float t_max) const {
+  constexpr std::optional<HitRecord> empty_result{};
 
   const auto hitr = std::visit(
       overloaded{
@@ -18,7 +18,7 @@ HitResult HittableObject::Hit(const Ray &r, float t_min, float t_max) const {
   if (!hitr)
     return empty_result;
 
-  return {hitr, Scatter(r, hitr.value())};
+  return hitr;
 }
 
 std::optional<ScatteringRecord> HittableObject::Scatter(const Ray &r, const HitRecord &rec) const {

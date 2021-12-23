@@ -8,11 +8,18 @@ HitResult HittableObjectList::Hit(const Ray &r, float t_min, float t_max) const 
 
   HitResult result{};
 
+  const HittableObject *closest_obj = nullptr;
+
   for (const auto &object : objects) {
-    if (const auto &[temp_hit, scatter] = object.Hit(r, t_min, closest_so_far); temp_hit) {
+    if (const auto &temp_hit = object.Hit(r, t_min, closest_so_far); temp_hit) {
+      closest_obj = &object;
       closest_so_far = temp_hit.value().t;
-      result = {temp_hit, scatter};
+      result.first = temp_hit;
     }
+  }
+
+  if (closest_obj) {
+    result.second = closest_obj->Scatter(r, result.first.value());
   }
 
   return result;
