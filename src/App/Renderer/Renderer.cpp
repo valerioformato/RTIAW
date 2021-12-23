@@ -47,39 +47,37 @@ void Renderer::Render(uint8_t *buffer) {
 
   m_state = RenderState::Running;
 
-  const std::vector<unsigned int> samples(m_samplesPerPixel, 0);
-  auto renderPixel = [this, buffer, &samples](glm::uvec2 pixelCoord) {
+  auto renderLine = [this, buffer](unsigned int lineCoord) {
     if (m_state == RenderState::Stopped) {
       return;
     }
 
-    // color pixel_color{0, 0, 0};
-    color pixel_color = std::accumulate(
-        begin(samples), end(samples), color{0, 0, 0},
-        [&pixelCoord, this](const auto &current_val, const auto &element) {
-          const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
-          const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
-          Ray r = m_camera->NewRay(u, v);
-          return current_val + ShootRay(r, m_maxRayDepth);
-        });
-    WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+    for (unsigned int i = 0; i < m_imageSize.x; ++i) {
+      const auto pixelCoord = glm::uvec2{i, lineCoord};
+      color pixel_color{0, 0, 0};
+      for (unsigned int i_sample = 0; i_sample < m_samplesPerPixel; ++i_sample) {
+        const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
+        const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
+        Ray r = m_camera->NewRay(u, v);
+        pixel_color += ShootRay(r, m_maxRayDepth);
+      }
+      WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+    }
   };
 
   std::vector<std::future<void>> futures;
 
   for (int j = m_imageSize.y - 1; j >= 0; --j) {
-    for (int i = 0; i < m_imageSize.x; ++i) {
-      // single threaded:
-      // renderPixel({i, j});
+    // single threaded:
+    // renderLine(j);
 
-      // multi threaded:
-      futures.push_back(m_threadPool.AddTask(renderPixel, glm::uvec2{i, j})); 
-    }
+    // multi threaded:
+    futures.push_back(m_threadPool.AddTask(renderLine, j));
   }
 
   // wait until all tasks are done...
   std::for_each(begin(futures), end(futures), [](auto &future) { future.wait(); });
-  //while (!m_threadPool.IsEmpty()) {
+  // while (!m_threadPool.IsEmpty()) {
   //  std::this_thread::sleep_for(std::chrono::milliseconds(10));
   //}
 
