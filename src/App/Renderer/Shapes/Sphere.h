@@ -13,6 +13,8 @@ public:
   Sphere() = default;
   Sphere(point3 center, float radius) : m_center{center}, m_radius{radius} {};
 
+  [[nodiscard]] float FastHit(const Ray &r, const float t_min, const float t_max) const;
+  [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
   [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 
 public:

@@ -6,6 +6,29 @@ template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 namespace RTIAW::Render {
+float HittableObject::FastHit(const Ray &r, float t_min, float t_max) const {
+  const auto t = std::visit(
+      overloaded{
+          [&](const Shapes::Sphere &sphere) { return sphere.FastHit(r, t_min, t_max); },
+      },
+      m_shape);
+
+  if (!t)
+    return std::numeric_limits<float>::max();
+
+  return t;
+}
+
+HitRecord HittableObject::ComputeHitRecord(const Ray &r, float t) const {
+  static constexpr std::optional<HitRecord> empty_result{};
+
+  return std::visit(
+      overloaded{
+          [&](const Shapes::Sphere &sphere) { return sphere.ComputeHitRecord(r, t); },
+      },
+      m_shape);
+}
+
 std::optional<HitRecord> HittableObject::Hit(const Ray &r, float t_min, float t_max) const {
   static constexpr std::optional<HitRecord> empty_result{};
 

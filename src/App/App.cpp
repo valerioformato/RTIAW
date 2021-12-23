@@ -50,7 +50,7 @@ App::App(const ImVec2 pos, const ImVec2 windowSize)
   // and our main display window
   SetupMainWindow();
 
-  m_renderer->SetImageSize(m_windowSize.x, m_windowSize.y);
+  m_renderer->SetImageSize(static_cast<unsigned int>(m_windowSize.x), static_cast<unsigned int>(m_windowSize.y));
   m_renderer->SetTargetBuffer(m_imageBuffer.get());
 
   // testing!
@@ -217,7 +217,7 @@ void App::CleanupRenderTarget() {
 void App::ResizeWindow(const ImVec2 newSize) {
   m_windowSize = newSize;
   CreateImageBuffer();
-  m_renderer->SetImageSize(m_windowSize.x, m_windowSize.y);
+  m_renderer->SetImageSize(static_cast<unsigned int>(m_windowSize.x), static_cast<unsigned int>(m_windowSize.y));
   m_renderer->SetTargetBuffer(m_imageBuffer.get());
 }
 
