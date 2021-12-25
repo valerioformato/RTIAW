@@ -8,6 +8,8 @@
 
 namespace RTIAW::Render::Materials {
 class Lambertian {
+  friend bool operator==(const Lambertian &lhs, const Lambertian &rhs);
+
 public:
   explicit Lambertian(const color &albedo) : m_albedo(albedo) {}
 
@@ -16,6 +18,8 @@ public:
 public:
   color m_albedo;
 };
+
+inline bool operator==(const Lambertian &lhs, const Lambertian &rhs) { return lhs.m_albedo == rhs.m_albedo; }
 } // namespace RTIAW::Render::Materials
 
 #endif
