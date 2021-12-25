@@ -9,11 +9,12 @@
 namespace RTIAW::Render::Materials {
 class Metal {
 public:
-  Metal(const color &albedo, float fuzzyness) : m_albedo(albedo), m_fuzzyness{fuzzyness < 1.0f ? fuzzyness : 1.0f} {}
+  explicit Metal(const color &albedo, const float fuzzyness)
+      : m_albedo(albedo), m_fuzzyness{fuzzyness < 1.0f ? fuzzyness : 1.0f} {}
 
   [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
 
-public:
+private:
   color m_albedo;
   float m_fuzzyness{1.0f};
 };
