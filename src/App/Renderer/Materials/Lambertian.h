@@ -9,7 +9,7 @@
 namespace RTIAW::Render::Materials {
 class Lambertian {
 public:
-  Lambertian(const color &albedo) : m_albedo(albedo) {}
+  explicit Lambertian(const color &albedo) : m_albedo(albedo) {}
 
   [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
 
