@@ -119,7 +119,7 @@ public:
 
     // Create packaged task
     auto task = std::make_shared<std::packaged_task<return_t()>>(
-        [Func = std::forward<Function_t>(function), capture0 = std::forward<Args...>(args...)] { return Func(capture0); });
+        std::bind(std::forward<Function_t>(function), std::forward<Args>(args)...));
 
     std::future<return_t> result = task->get_future();
 
