@@ -56,6 +56,12 @@ private:
   // our camera :)
   std::unique_ptr<Camera> m_camera;
 
+  struct Quad {
+    Quad(glm::uvec2 min, glm::uvec2 max) : minCoo{min}, maxCoo{max} {};
+    glm::uvec2 minCoo;
+    glm::uvec2 maxCoo;
+  };
+  std::vector<Quad> SplitImage(unsigned int quadSize = 100) const;
   // actual internal implementation
   void Render(uint8_t *buffer);
   color ShootRay(const Ray &ray, unsigned int depth);

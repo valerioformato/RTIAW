@@ -41,47 +41,78 @@ void Renderer::StartRender() {
 
 void Renderer::StopRender() { m_state = RenderState::Stopped; }
 
+std::vector<Renderer::Quad> Renderer::SplitImage(unsigned int quadSize) const {
+  std::vector<Quad> result;
+  const unsigned int nX = static_cast<unsigned int>(std::ceil(m_imageSize.x / static_cast<float>(quadSize)));
+  const unsigned int nY = static_cast<unsigned int>(std::ceil(m_imageSize.y / static_cast<float>(quadSize)));
+  for (unsigned int j = nY; j > 0; --j) {
+    for (unsigned int i = 0; i < nX; ++i) {
+      result.emplace_back(glm::uvec2{i * quadSize, (j - 1) * quadSize},
+                          glm::min(glm::uvec2{(i + 1) * quadSize, j * quadSize}, m_imageSize));
+    }
+  }
+
+  return result;
+}
+
 void Renderer::Render(uint8_t *buffer) {
   m_logger->debug("Start rendering!!!");
-  auto startTime = std::chrono::system_clock::now();
+  const auto startTime = std::chrono::system_clock::now();
 
   m_state = RenderState::Running;
 
-  const std::vector<unsigned int> samples(m_samplesPerPixel, 0);
-  auto renderPixel = [this, buffer, &samples](glm::uvec2 pixelCoord) {
+  auto renderLine = [this, buffer](const unsigned int lineCoord) {
     if (m_state == RenderState::Stopped) {
       return;
     }
 
-    // color pixel_color{0, 0, 0};
-    color pixel_color = std::accumulate(
-        begin(samples), end(samples), color{0, 0, 0},
-        [&pixelCoord, this](const auto &current_val, const auto &element) {
+    for (unsigned int i = 0; i < m_imageSize.x; ++i) {
+      const auto pixelCoord = glm::uvec2{i, lineCoord};
+      color pixel_color{0, 0, 0};
+      for (unsigned int i_sample = 0; i_sample < m_samplesPerPixel; ++i_sample) {
+        const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
+        const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
+        Ray r = m_camera->NewRay(u, v);
+        pixel_color += ShootRay(r, m_maxRayDepth);
+      }
+      WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+    }
+  };
+
+  auto renderQuad = [this, buffer](const glm::uvec2 minCoo, const glm::uvec2 maxCoo) {
+    if (m_state == RenderState::Stopped) {
+      return;
+    }
+
+    for (unsigned int j = maxCoo.y; j > minCoo.y; --j) {
+      for (unsigned int i = minCoo.x; i < maxCoo.x; ++i) {
+        color pixel_color{0, 0, 0};
+        const auto pixelCoord = glm::uvec2{i, j - 1};
+        for (unsigned int i_sample = 0; i_sample < m_samplesPerPixel; ++i_sample) {
           const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
           const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
           Ray r = m_camera->NewRay(u, v);
-          return current_val + ShootRay(r, m_maxRayDepth);
-        });
-    WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+          pixel_color += ShootRay(r, m_maxRayDepth);
+        }
+        WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+      }
+    }
   };
 
   std::vector<std::future<void>> futures;
 
-  for (int j = m_imageSize.y - 1; j >= 0; --j) {
-    for (int i = 0; i < m_imageSize.x; ++i) {
-      // single threaded:
-      // renderPixel({i, j});
+  // Render per-line
+  // for (int j = m_imageSize.y - 1; j >= 0; --j) {
+  //  futures.push_back(m_threadPool.AddTask(renderLine, j));
+  //}
 
-      // multi threaded:
-      futures.push_back(m_threadPool.AddTask(renderPixel, glm::uvec2{i, j})); 
-    }
+  // Render per-quad
+  for (const auto &[minCoo, maxCoo] : SplitImage()) {
+    futures.push_back(m_threadPool.AddTask(renderQuad, minCoo, maxCoo));
   }
 
   // wait until all tasks are done...
   std::for_each(begin(futures), end(futures), [](auto &future) { future.wait(); });
-  //while (!m_threadPool.IsEmpty()) {
-  //  std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  //}
 
   auto stopTime = std::chrono::system_clock::now();
   m_logger->debug("Rendering took {}", std::chrono::duration_cast<std::chrono::seconds>(stopTime - startTime));
@@ -108,8 +139,7 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
   constexpr color white{1.0, 1.0, 1.0};
   constexpr color azure{0.5, 0.7, 1.0};
 
-  const vec3 unit_direction = glm::normalize(ray.Direction());
-  float t = 0.5f * (unit_direction.y + 1.0f);
+  float t = 0.5f * (ray.direction.y + 1.0f);
   return (1.0f - t) * white + t * azure;
 }
 

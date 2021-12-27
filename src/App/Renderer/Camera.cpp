@@ -6,7 +6,7 @@ namespace RTIAW::Render {
 Camera::Camera(CameraOrientation orientation, float verticalFov, float aspectRatio, float aperture, float focusDist) {
   auto theta = Utils::DegToRad(verticalFov);
   auto h = std::tan(theta / 2);
-  m_viewportHeight = 2.0 * h;
+  m_viewportHeight = 2.0f * h;
   m_viewportWidth = aspectRatio * m_viewportHeight;
   m_lensRadius = aperture / 2.0f;
 
