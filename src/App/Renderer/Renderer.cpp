@@ -114,7 +114,7 @@ void Renderer::Render(uint8_t *buffer) {
   // wait until all tasks are done...
   std::for_each(begin(futures), end(futures), [](auto &future) { future.wait(); });
 
-  auto stopTime = std::chrono::system_clock::now();
+  const auto stopTime = std::chrono::system_clock::now();
   m_logger->debug("Rendering took {}", std::chrono::duration_cast<std::chrono::seconds>(stopTime - startTime));
 
   m_state = RenderState::Finished;

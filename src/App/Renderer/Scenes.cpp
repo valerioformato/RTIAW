@@ -82,6 +82,9 @@ void Renderer::SetScene(Scenes scene) {
     m_scene.Add(Shapes::Sphere(point3(0, 0, -2), 1.0f), material);
     m_scene.Add(Shapes::Sphere(point3(-1, 0, 0), 1.0f), material);
     m_scene.Add(Shapes::Sphere(point3(1, 0, -4), 1.0f), material);
+
+    auto plane_material = Materials::Lambertian(color(0.6, 0.6, 0.6));
+    m_scene.Add(Shapes::Plane(point3(0.0, -1.2, 0.0), glm::vec3(0.0, 1.0, 0.0)), plane_material);
   } break;
   default:
     throw(std::runtime_error("Invalid scene selected"));

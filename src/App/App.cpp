@@ -55,9 +55,9 @@ App::App(const ImVec2 pos, const ImVec2 windowSize)
 
   // testing!
   // TODO: later on let this be picked in a ImGui dropdown maybe?
-  // m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::TestScene);
+  m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::TestScene);
   // m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::ThreeSpheres);
-  m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::DefaultScene);
+  // m_renderer->SetScene(RTIAW::Render::Renderer::Scenes::DefaultScene);
 }
 
 App::~App() {
