@@ -81,13 +81,14 @@ void Renderer::SetScene(Scenes scene) {
     m_camera = std::make_unique<Camera>(orientation, 20.0f, AspectRatio(), aperture, dist_to_focus);
 
     auto material = Materials::Lambertian(color(0.8, 0.2, 0.1));
-    m_scene.Add(Shapes::Sphere(point3(0, 0, -2), 1.0f), material);
     m_scene.Add(Shapes::Sphere(point3(-1, 0, 0), 1.0f), material);
+    // m_scene.Add(Shapes::Sphere(point3(0, 0, -2), 1.0f), material);
+
+    m_scene.Add(Shapes::Rectangle({point3(0.5, -1.0, -2.0), point3(-1.5, 1.0, -2.0), glm::vec3(1.5, 0.0, -2.0)}),
+                material);
 
     m_scene.Add(Shapes::Parallelogram({point3(2.0, -1.0, -4.0), point3(1.5, 0.0, -4.0), glm::vec3(2.5, 0.0, -4.0)}),
                 material);
-    // m_scene.Add(Shapes::Parallelogram({point3(0.0, 0.0, 0.0), point3(-1.0, 1.0, 0.0), glm::vec3(1.0, 1.0, 0.0)}),
-    //            material);
 
     auto plane_material = Materials::Lambertian(color(0.6, 0.6, 0.6));
     m_scene.Add(Shapes::Plane(point3(0.0, -1.2, 0.0), glm::vec3(0.0, 1.0, 0.0)), plane_material);

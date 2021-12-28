@@ -1,5 +1,5 @@
-#ifndef RTIAW_shapes_sphere
-#define RTIAW_shapes_sphere
+#ifndef RTIAW_shapes_rectangle
+#define RTIAW_shapes_rectangle
 
 #include <memory>
 #include <optional>
@@ -7,21 +7,17 @@
 #include "HitRecord.h"
 #include "Utils.h"
 
+#include "Shapes/Parallelogram.h"
+
 namespace RTIAW::Render::Shapes {
-class Rectangle {
+class Rectangle : public Parallelogram {
 public:
-  Rectangle() = default;
-  Rectangle(point3 origin, point3 p1, point3 p2)
-      : m_center{center}, m_radius{radius}, m_sqRadius{m_radius * m_radius} {};
+  Rectangle() : Parallelogram() {}
+  explicit Rectangle(std::array<point3, 3> points);
 
-  [[nodiscard]] float FastHit(const Ray &r, const float t_min, const float t_max) const;
-  [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
-  [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
-
-public:
-  point3 m_center{0, 0, 0};
-  float m_radius{0};
-  float m_sqRadius{0};
+  //[[nodiscard]] float FastHit(const Ray &r, const float t_min, const float t_max) const;
+  //[[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
+  //[[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 };
 } // namespace RTIAW::Render::Shapes
 
