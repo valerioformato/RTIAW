@@ -30,12 +30,26 @@ float Parallelogram::FastHit(const Ray &r, const float t_min, const float t_max)
 
     // intersection point w.r.t. parallelogram origin
     const auto k = intersection - m_plane.Origin();
-    const float den = (m_vertices[1].y * m_vertices[0].x - m_vertices[1].x * m_vertices[0].y);
-    const float proj0 = (k.x * m_vertices[1].y - k.y * m_vertices[1].x) / den;
-    const float proj1 = (k.y * m_vertices[0].x - k.x * m_vertices[0].y) / den;
-    if (proj0 > 0 && proj1 > 0 && proj0 < 1.0f && proj1 < 1.0f) {
+    //const float den = (m_vertices[1].y * m_vertices[0].x - m_vertices[1].x * m_vertices[0].y);
+    //const float proj0 = (k.x * m_vertices[1].y - k.y * m_vertices[1].x) / den;
+    //const float proj1 = (k.y * m_vertices[0].x - k.x * m_vertices[0].y) / den;
+    //if (proj0 > 0 && proj1 > 0 && proj0 < 1.0f && proj1 < 1.0f) {
+    //  return t;
+    //}
+
+    float udv = glm::dot(m_vertices[0], m_vertices[1]);
+    float xdu = glm::dot(k, m_vertices[0]);
+    float xdv = glm::dot(k, m_vertices[1]);
+    float udu = glm::dot(m_vertices[0], m_vertices[0]);
+    float vdv = glm::dot(m_vertices[1], m_vertices[1]);
+
+    float d = udv * udv - udu * vdv;
+
+    float a = (udv * xdv - xdu * vdv) / d;
+    float b = (udv * xdu - xdv * udu) / d;
+
+    if (a >= 0 && a < 1 && b >= 0 && b < 1)
       return t;
-    }
   }
 
   return std::numeric_limits<float>::max();

@@ -87,7 +87,10 @@ void Renderer::SetScene(Scenes scene) {
     m_scene.Add(Shapes::Rectangle({point3(0.5, -1.0, -2.0), point3(-1.5, 1.0, -2.0), glm::vec3(1.5, 0.0, -2.0)}),
                 material);
 
-    m_scene.Add(Shapes::Parallelogram({point3(2.0, -1.0, -4.0), point3(1.5, 0.0, -4.0), glm::vec3(2.5, 0.0, -4.0)}),
+    m_scene.Add(Shapes::Parallelogram({point3(2.0, -1.0, -4.0), point3(1.5, -0.5, -5.0), glm::vec3(2.5, -0.5, -5.0)}),
+                material);
+
+    m_scene.Add(Shapes::Rectangle({point3(3.0, -1.0, -4.0), point3(3.0, 0.0, -4.0), glm::vec3(4.0, -1.0, -4.0)}),
                 material);
 
     auto plane_material = Materials::Lambertian(color(0.6, 0.6, 0.6));
