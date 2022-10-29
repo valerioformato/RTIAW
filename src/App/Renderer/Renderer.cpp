@@ -6,8 +6,7 @@
 #include "Ray.h"
 #include "Renderer.h"
 
-#include "App/App.h"
-//#include "Materials/Material.h"
+// #include "Materials/Material.h"
 #include "HittableObjectList.h"
 
 #include <numeric>
@@ -24,7 +23,11 @@ Renderer::~Renderer() {
   }
 }
 
-void Renderer::SetImageSize(unsigned int x, unsigned int y) { m_imageSize = glm::uvec2{x, y}; }
+void Renderer::SetImageSize(unsigned int x, unsigned int y) {
+  m_imageSize = glm::uvec2{x, y};
+  m_renderBuffer.resize(x * y * 4);
+  m_renderBuffer.clear();
+}
 
 void Renderer::StartRender() {
   switch (m_state) {
@@ -36,7 +39,7 @@ void Renderer::StartRender() {
     break;
   }
 
-  m_renderingThread = std::thread{&Renderer::Render, this, m_renderBuffer};
+  m_renderingThread = std::thread{&Renderer::Render, this, m_renderBuffer.data()};
 }
 
 void Renderer::StopRender() { m_state = RenderState::Stopped; }

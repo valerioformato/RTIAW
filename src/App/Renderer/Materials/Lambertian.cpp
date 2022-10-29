@@ -1,8 +1,8 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/random.hpp>
 
-#include "HittableObject.h"
-#include "Materials/Lambertian.h"
+#include "App/Renderer/HittableObject.h"
+#include "App/Renderer/Materials/Lambertian.h"
 
 namespace RTIAW::Render::Materials {
 std::optional<ScatteringRecord> Lambertian::Scatter(const Ray &r_in, const HitRecord &rec) const {

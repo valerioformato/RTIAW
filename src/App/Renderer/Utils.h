@@ -1,7 +1,7 @@
 #ifndef RTIAW_renderutils
 #define RTIAW_renderutils
 
-#include <glm/glm/glm.hpp>
+#include <glm/glm.hpp>
 
 namespace RTIAW::Utils {
 // Constants

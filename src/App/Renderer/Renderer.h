@@ -23,7 +23,6 @@ public:
   ~Renderer();
 
   void SetImageSize(unsigned int x, unsigned int y);
-  void SetTargetBuffer(uint8_t *const buffer) { m_renderBuffer = buffer; }
   void SetScene(Scenes scene = Scenes::DefaultScene);
 
   void SetSamplesPerPixel(unsigned int nSamples) { m_samplesPerPixel = nSamples; }
@@ -34,6 +33,7 @@ public:
 
   [[nodiscard]] Scenes Scene() const { return m_sceneType; }
   [[nodiscard]] RenderState State() const { return m_state; }
+  [[nodiscard]] const void *ImageBuffer() const { return m_renderBuffer.empty() ? nullptr : m_renderBuffer.data(); }
 
 private:
   std::shared_ptr<spdlog::logger> m_logger;
@@ -47,7 +47,7 @@ private:
   RenderState m_state = RenderState::Ready;
 
   // render buffer
-  uint8_t *m_renderBuffer = nullptr;
+  std::vector<uint8_t> m_renderBuffer{};
 
   // main rendering thread
   std::thread m_renderingThread;

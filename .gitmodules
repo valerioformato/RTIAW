@@ -1,6 +1,4 @@
-[submodule "src/imgui"]
-	path = src/imgui
-	url = https://github.com/ocornut/imgui
-[submodule "src/glm"]
-	path = src/glm
-	url = https://github.com/g-truc/glm
+[submodule "vendor/Walnut"]
+	path = vendor/Walnut
+	url = git@github.com:valerioformato/Walnut.git
+	branch = glfw_fix

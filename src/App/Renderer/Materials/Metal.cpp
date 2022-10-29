@@ -1,8 +1,8 @@
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/random.hpp>
 
-#include "HittableObject.h"
-#include "Materials/Metal.h"
+#include "App/Renderer/HittableObject.h"
+#include "App/Renderer/Materials/Metal.h"
 
 namespace RTIAW::Render::Materials {
 std::optional<ScatteringRecord> Metal::Scatter(const Ray &r_in, const HitRecord &rec) const {
