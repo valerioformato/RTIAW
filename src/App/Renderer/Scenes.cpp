@@ -7,9 +7,7 @@
 #include "Shapes/Sphere.h"
 
 namespace RTIAW::Render {
-void Renderer::SetScene(Scenes scene) {
-  m_sceneType = scene;
-
+void Renderer::LoadScene() {
   m_scene.Clear();
 
   switch (m_sceneType) {

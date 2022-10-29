@@ -21,8 +21,11 @@ public:
 private:
   std::shared_ptr<spdlog::logger> m_logger;
 
+  std::unique_ptr<Walnut::Image> m_image{nullptr};
+
   // this is our big boy, who'll do all the work
-  std::unique_ptr<Render::Renderer> m_renderer;
+  Render::Renderer m_renderer;
+  Render::Renderer::Scenes m_selectedScene{Render::Renderer::Scenes::DefaultScene};
 };
 } // namespace RTIAW
 

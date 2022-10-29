@@ -25,8 +25,8 @@ Renderer::~Renderer() {
 
 void Renderer::SetImageSize(unsigned int x, unsigned int y) {
   m_imageSize = glm::uvec2{x, y};
-  m_renderBuffer.resize(x * y * 4);
   m_renderBuffer.clear();
+  m_renderBuffer.resize(x * y * 4);
 }
 
 void Renderer::StartRender() {
@@ -39,6 +39,7 @@ void Renderer::StartRender() {
     break;
   }
 
+  LoadScene();
   m_renderingThread = std::thread{&Renderer::Render, this, m_renderBuffer.data()};
 }
 
@@ -149,7 +150,7 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
 void Renderer::WritePixelToBuffer(uint8_t *buffer, unsigned int ix, unsigned int iy, unsigned int samples_per_pixel,
                                   color pixel_color) const {
   // flip the vertical coordinate because the display backend follow the opposite convention
-  iy = m_imageSize.y - 1 - iy;
+  // iy = m_imageSize.y - 1 - iy;
 
   pixel_color /= samples_per_pixel;
   pixel_color = glm::sqrt(pixel_color);

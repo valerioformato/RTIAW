@@ -23,7 +23,7 @@ public:
   ~Renderer();
 
   void SetImageSize(unsigned int x, unsigned int y);
-  void SetScene(Scenes scene = Scenes::DefaultScene);
+  void SetScene(Scenes scene = Scenes::DefaultScene) { m_sceneType = scene; };
 
   void SetSamplesPerPixel(unsigned int nSamples) { m_samplesPerPixel = nSamples; }
   void SetMaxRayBounces(unsigned int nBounces) { m_maxRayDepth = nBounces; }
@@ -44,6 +44,8 @@ private:
 
   Scenes m_sceneType{Scenes::DefaultScene};
   HittableObjectList m_scene;
+  void LoadScene();
+
   RenderState m_state = RenderState::Ready;
 
   // render buffer

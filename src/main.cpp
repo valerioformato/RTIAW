@@ -6,7 +6,9 @@
 
 Walnut::Application *Walnut::CreateApplication(int argc, char **argv) {
   Walnut::ApplicationSpecification spec;
-  spec.Name = "Walnut Example";
+  spec.Name = "Raytracing in a weekend";
+  spec.Width = 1200;
+  spec.Height = 768;
 
   Walnut::Application *app = new Walnut::Application(spec);
   app->PushLayer<RTIAW::ApplicationLayer>();
