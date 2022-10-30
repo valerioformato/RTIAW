@@ -39,8 +39,8 @@ private:
   std::shared_ptr<spdlog::logger> m_logger;
 
   glm::uvec2 m_imageSize{0, 0};
-  unsigned int m_samplesPerPixel = 32;
-  unsigned int m_maxRayDepth = 10;
+  unsigned int m_samplesPerPixel = 64;
+  unsigned int m_maxRayDepth = 12;
 
   Scenes m_sceneType{Scenes::DefaultScene};
   HittableObjectList m_scene;
