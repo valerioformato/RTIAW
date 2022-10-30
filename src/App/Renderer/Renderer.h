@@ -65,10 +65,9 @@ private:
   };
   std::vector<Quad> SplitImage(unsigned int quadSize = 100) const;
   // actual internal implementation
-  void Render(uint8_t *buffer);
+  void Render();
   color ShootRay(const Ray &ray, unsigned int depth);
-  void WritePixelToBuffer(uint8_t *buffer, unsigned int ix, unsigned int iy, unsigned int samples_per_pixel,
-                          color pixel_color) const;
+  void WritePixelToBuffer(unsigned int ix, unsigned int iy, unsigned int samples_per_pixel, color pixel_color);
 
   // rng stuff
   std::mt19937 m_rnGenerator{};
