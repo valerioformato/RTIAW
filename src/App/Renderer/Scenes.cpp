@@ -56,7 +56,7 @@ void Renderer::LoadScene() {
 
     const auto lookDir = orientation.lookfrom - orientation.lookat;
     const auto dist_to_focus = std::sqrt(glm::dot(lookDir, lookDir));
-    constexpr auto aperture = 1.0f;
+    constexpr auto aperture = 0.5f;
 
     m_camera = std::make_unique<Camera>(orientation, 20.0f, AspectRatio(), aperture, dist_to_focus);
 

@@ -31,7 +31,7 @@ template <typename T> glm::vec<2, T, glm::defaultp> diskRand(T Radius) {
     Result.x = unif(generator);
     Result.y = unif(generator);
     // Result = linearRand(glm::vec<2, T, glm::defaultp>(-Radius), vec<2, T, defaultp>(Radius));
-    LenRadius = length(Result);
+    LenRadius = glm::length(Result);
   } while (LenRadius > Radius);
 
   return Result;

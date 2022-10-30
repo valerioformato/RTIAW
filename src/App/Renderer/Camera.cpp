@@ -1,3 +1,4 @@
+#include <fmt/format.h>
 #include <glm/gtc/random.hpp>
 
 #include <random>
@@ -23,8 +24,8 @@ Camera::Camera(CameraOrientation orientation, float verticalFov, float aspectRat
 }
 
 Ray Camera::NewRay(float s, float t) const {
-  // glm::vec2 randVec = glm::diskRand(m_lensRadius);
   glm::vec2 randVec = Random::diskRand(m_lensRadius);
+
   vec3 offset = u * randVec.x + v * randVec.y;
 
   return Ray(m_origin + offset, m_lowerLeftCorner + s * m_horizontal + t * m_vertical - m_origin - offset);

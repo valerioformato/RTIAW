@@ -14,7 +14,7 @@
 namespace RTIAW {
 ApplicationLayer::ApplicationLayer() : m_logger{spdlog::stdout_color_st("ApplicationLayer")} {
   // FIXME: remove after debugging
-  spdlog::set_level(spdlog::level::debug);
+  // spdlog::set_level(spdlog::level::debug);
 
   // TODO: later on let this be picked in a ImGui dropdown maybe?
   // m_renderer.SetScene(RTIAW::Render::Renderer::Scenes::TestScene);

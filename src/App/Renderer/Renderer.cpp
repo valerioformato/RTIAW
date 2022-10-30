@@ -88,13 +88,15 @@ void Renderer::Render() {
       return;
     }
 
+    std::mt19937 generator{std::random_device{}()};
+
     for (unsigned int j = maxCoo.y; j > minCoo.y; --j) {
       for (unsigned int i = minCoo.x; i < maxCoo.x; ++i) {
         color pixel_color{0, 0, 0};
         const auto pixelCoord = glm::uvec2{i, j - 1};
         for (unsigned int i_sample = 0; i_sample < m_samplesPerPixel; ++i_sample) {
-          const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
-          const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
+          const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(generator)) / (m_imageSize.x - 1);
+          const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(generator)) / (m_imageSize.y - 1);
           Ray r = m_camera->NewRay(u, v);
           pixel_color += ShootRay(r, m_maxRayDepth);
         }
