@@ -1,7 +1,7 @@
 #include <random>
 
-#include "HittableObject.h"
-#include "Materials/Dielectric.h"
+#include "App/Renderer/HittableObject.h"
+#include "App/Renderer/Materials/Dielectric.h"
 
 // rng stuff
 static std::mt19937 m_rnGenerator{};

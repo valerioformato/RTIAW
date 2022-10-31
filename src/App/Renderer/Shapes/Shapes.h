@@ -3,7 +3,7 @@
 
 #include <variant>
 
-#include "Shapes/Sphere.h"
+#include "App/Renderer/Shapes/Sphere.h"
 
 namespace RTIAW::Render {
 using Shape = std::variant<Shapes::Sphere>;

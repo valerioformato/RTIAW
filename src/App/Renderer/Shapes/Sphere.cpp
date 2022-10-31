@@ -1,6 +1,6 @@
 #include <spdlog/spdlog.h>
 
-#include "Shapes/Sphere.h"
+#include "App/Renderer/Shapes/Sphere.h"
 
 template <typename T> int sign(T val) { return (T(0) < val) - (val < T(0)); }
 

@@ -3,9 +3,9 @@
 
 #include <variant>
 
-#include "Materials/Dielectric.h"
-#include "Materials/Lambertian.h"
-#include "Materials/Metal.h"
+#include "App/Renderer/Materials/Dielectric.h"
+#include "App/Renderer/Materials/Lambertian.h"
+#include "App/Renderer/Materials/Metal.h"
 
 namespace RTIAW::Render {
 using Material = std::variant<Materials::Lambertian, Materials::Dielectric, Materials::Metal>;
