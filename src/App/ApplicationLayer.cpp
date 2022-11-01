@@ -89,6 +89,7 @@ void ApplicationLayer::OnUIRender() {
   ImGui::Begin("Render Settings");
   ImGui::DragInt("Samples", (int *)&m_renderer.samplesPerPixel, 1, 1, 1024);
   ImGui::DragInt("Bounces", (int *)&m_renderer.maxRayDepth, 1, 1, 1024);
+  ImGui::Text("Last render time: %d ms", m_renderer.lastRenderTimeMS);
   ImGui::End();
 }
 } // namespace RTIAW

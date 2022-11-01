@@ -121,7 +121,9 @@ void Renderer::Render() {
   std::for_each(begin(futures), end(futures), [](auto &future) { future.wait(); });
 
   const auto stopTime = std::chrono::system_clock::now();
-  m_logger->debug("Rendering took {}", std::chrono::duration_cast<std::chrono::seconds>(stopTime - startTime));
+  auto renderDuration = stopTime - startTime;
+  m_logger->debug("Rendering took {}", std::chrono::duration_cast<std::chrono::seconds>(renderDuration));
+  lastRenderTimeMS = std::chrono::duration_cast<std::chrono::milliseconds>(renderDuration).count();
 
   m_state = RenderState::Finished;
 }

@@ -37,7 +37,8 @@ public:
 
   unsigned int samplesPerPixel = 64;
   unsigned int maxRayDepth = 12;
-
+  unsigned int lastRenderTimeMS = 0;
+  
 private:
   std::shared_ptr<spdlog::logger> m_logger;
 
