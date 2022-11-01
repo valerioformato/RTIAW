@@ -3,10 +3,10 @@
 
 #include <variant>
 
-#include "Shapes/Parallelogram.h"
-#include "Shapes/Plane.h"
-#include "Shapes/Rectangle.h"
-#include "Shapes/Sphere.h"
+#include "App/Renderer/Shapes/Parallelogram.h"
+#include "App/Renderer/Shapes/Plane.h"
+#include "App/Renderer/Shapes/Rectangle.h"
+#include "App/Renderer/Shapes/Sphere.h"
 
 namespace RTIAW::Render {
 using Shape = std::variant<Shapes::Sphere, Shapes::Plane, Shapes::Parallelogram, Shapes::Rectangle>;

@@ -4,8 +4,8 @@
 #include <array>
 #include <optional>
 
-#include "HitRecord.h"
-#include "Utils.h"
+#include "App/Renderer/HitRecord.h"
+#include "App/Renderer/Utils.h"
 
 namespace RTIAW::Render::Shapes {
 class Plane {

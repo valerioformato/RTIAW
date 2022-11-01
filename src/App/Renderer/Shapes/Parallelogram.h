@@ -3,10 +3,10 @@
 
 #include <optional>
 
-#include "HitRecord.h"
-#include "Utils.h"
+#include "App/Renderer/HitRecord.h"
+#include "App/Renderer/Utils.h"
 
-#include "Shapes/Plane.h"
+#include "App/Renderer/Shapes/Plane.h"
 
 namespace RTIAW::Render::Shapes {
 

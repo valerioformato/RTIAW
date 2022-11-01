@@ -3,8 +3,8 @@
 
 #include <optional>
 
-#include "HitRecord.h"
-#include "ScatteringRecord.h"
+#include "App/Renderer/HitRecord.h"
+#include "App/Renderer/ScatteringRecord.h"
 
 namespace RTIAW::Render::Materials {
 class Dielectric {

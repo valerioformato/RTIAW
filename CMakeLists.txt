@@ -28,4 +28,5 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(cmake/FetchDependencies.cmake)
 
+add_subdirectory(vendor)
 add_subdirectory(src)

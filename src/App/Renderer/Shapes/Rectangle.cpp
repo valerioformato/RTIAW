@@ -1,4 +1,4 @@
-#include "Shapes/Rectangle.h"
+#include "App/Renderer/Shapes/Rectangle.h"
 
 #include <iostream>
 #include <stdexcept>

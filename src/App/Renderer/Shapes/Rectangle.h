@@ -4,10 +4,10 @@
 #include <memory>
 #include <optional>
 
-#include "HitRecord.h"
-#include "Utils.h"
+#include "App/Renderer/HitRecord.h"
+#include "App/Renderer/Utils.h"
 
-#include "Shapes/Parallelogram.h"
+#include "App/Renderer/Shapes/Parallelogram.h"
 
 namespace RTIAW::Render::Shapes {
 class Rectangle : public Parallelogram {

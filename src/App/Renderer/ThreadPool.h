@@ -48,7 +48,7 @@ private:
 
 public:
   // Construct ( max threads )
-  Pool() : Pool(std::thread::hardware_concurrency()) {}
+  Pool() : Pool(std::max(1u, std::thread::hardware_concurrency() - 1)) {}
 
   // Construct ( thread count )
   explicit Pool(const std::size_t thread_count)

@@ -1,4 +1,4 @@
-#include "Shapes/Plane.h"
+#include "App/Renderer/Shapes/Plane.h"
 
 #include <stdexcept>
 

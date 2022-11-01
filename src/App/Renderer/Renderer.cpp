@@ -6,8 +6,7 @@
 #include "Ray.h"
 #include "Renderer.h"
 
-#include "App/App.h"
-//#include "Materials/Material.h"
+// #include "Materials/Material.h"
 #include "HittableObjectList.h"
 
 #include <numeric>
@@ -24,7 +23,11 @@ Renderer::~Renderer() {
   }
 }
 
-void Renderer::SetImageSize(unsigned int x, unsigned int y) { m_imageSize = glm::uvec2{x, y}; }
+void Renderer::SetImageSize(unsigned int x, unsigned int y) {
+  m_imageSize = glm::uvec2{x, y};
+  m_renderBuffer.clear();
+  m_renderBuffer.resize(x * y * 4);
+}
 
 void Renderer::StartRender() {
   switch (m_state) {
@@ -36,7 +39,8 @@ void Renderer::StartRender() {
     break;
   }
 
-  m_renderingThread = std::thread{&Renderer::Render, this, m_renderBuffer};
+  LoadScene();
+  m_renderingThread = std::thread{&Renderer::Render, this};
 }
 
 void Renderer::StopRender() { m_state = RenderState::Stopped; }
@@ -55,13 +59,13 @@ std::vector<Renderer::Quad> Renderer::SplitImage(unsigned int quadSize) const {
   return result;
 }
 
-void Renderer::Render(uint8_t *buffer) {
+void Renderer::Render() {
   m_logger->debug("Start rendering!!!");
   const auto startTime = std::chrono::system_clock::now();
 
   m_state = RenderState::Running;
 
-  auto renderLine = [this, buffer](const unsigned int lineCoord) {
+  auto renderLine = [this](const unsigned int lineCoord) {
     if (m_state == RenderState::Stopped) {
       return;
     }
@@ -75,26 +79,28 @@ void Renderer::Render(uint8_t *buffer) {
         Ray r = m_camera->NewRay(u, v);
         pixel_color += ShootRay(r, m_maxRayDepth);
       }
-      WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+      WritePixelToBuffer(pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
     }
   };
 
-  auto renderQuad = [this, buffer](const glm::uvec2 minCoo, const glm::uvec2 maxCoo) {
+  auto renderQuad = [this](const glm::uvec2 minCoo, const glm::uvec2 maxCoo) {
     if (m_state == RenderState::Stopped) {
       return;
     }
+
+    std::mt19937 generator{std::random_device{}()};
 
     for (unsigned int j = maxCoo.y; j > minCoo.y; --j) {
       for (unsigned int i = minCoo.x; i < maxCoo.x; ++i) {
         color pixel_color{0, 0, 0};
         const auto pixelCoord = glm::uvec2{i, j - 1};
         for (unsigned int i_sample = 0; i_sample < m_samplesPerPixel; ++i_sample) {
-          const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
-          const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
+          const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(generator)) / (m_imageSize.x - 1);
+          const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(generator)) / (m_imageSize.y - 1);
           Ray r = m_camera->NewRay(u, v);
           pixel_color += ShootRay(r, m_maxRayDepth);
         }
-        WritePixelToBuffer(buffer, pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+        WritePixelToBuffer(pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
       }
     }
   };
@@ -126,7 +132,7 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
     return color(0, 0, 0);
 
   if (const auto &[o_hitRecord, o_scatterResult] = m_scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); o_hitRecord) {
-    const auto &[p, normal, t, front_face] = o_hitRecord.value();
+    const auto &[t, p, normal, front_face] = o_hitRecord.value();
 
     if (o_scatterResult) {
       const auto &[attenuation, scattered] = o_scatterResult.value();
@@ -143,20 +149,19 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
   return (1.0f - t) * white + t * azure;
 }
 
-void Renderer::WritePixelToBuffer(uint8_t *buffer, unsigned int ix, unsigned int iy, unsigned int samples_per_pixel,
-                                  color pixel_color) const {
+void Renderer::WritePixelToBuffer(unsigned int ix, unsigned int iy, unsigned int samples_per_pixel, color pixel_color) {
   // flip the vertical coordinate because the display backend follow the opposite convention
-  iy = m_imageSize.y - 1 - iy;
+  // iy = m_imageSize.y - 1 - iy;
 
   pixel_color /= samples_per_pixel;
   pixel_color = glm::sqrt(pixel_color);
   pixel_color = glm::clamp(pixel_color, 0.0f, 1.0f);
 
   const unsigned int idx = 4 * (ix + iy * m_imageSize.x);
-  buffer[idx] = static_cast<uint8_t>(255 * pixel_color.r);
-  buffer[idx + 1] = static_cast<uint8_t>(255 * pixel_color.g);
-  buffer[idx + 2] = static_cast<uint8_t>(255 * pixel_color.b);
-  buffer[idx + 3] = 255;
+  m_renderBuffer[idx] = static_cast<uint8_t>(255 * pixel_color.r);
+  m_renderBuffer[idx + 1] = static_cast<uint8_t>(255 * pixel_color.g);
+  m_renderBuffer[idx + 2] = static_cast<uint8_t>(255 * pixel_color.b);
+  m_renderBuffer[idx + 3] = 255;
 };
 
 } // namespace RTIAW::Render
