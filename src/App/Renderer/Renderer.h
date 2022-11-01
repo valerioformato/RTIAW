@@ -25,8 +25,8 @@ public:
   void SetImageSize(unsigned int x, unsigned int y);
   void SetScene(Scenes scene = Scenes::DefaultScene) { m_sceneType = scene; };
 
-  void SetSamplesPerPixel(unsigned int nSamples) { m_samplesPerPixel = nSamples; }
-  void SetMaxRayBounces(unsigned int nBounces) { m_maxRayDepth = nBounces; }
+  void SetSamplesPerPixel(unsigned int nSamples) { samplesPerPixel = nSamples; }
+  void SetMaxRayBounces(unsigned int nBounces) { maxRayDepth = nBounces; }
 
   void StartRender();
   void StopRender();
@@ -35,12 +35,13 @@ public:
   [[nodiscard]] RenderState State() const { return m_state; }
   [[nodiscard]] const void *ImageBuffer() const { return m_renderBuffer.empty() ? nullptr : m_renderBuffer.data(); }
 
+  unsigned int samplesPerPixel = 64;
+  unsigned int maxRayDepth = 12;
+
 private:
   std::shared_ptr<spdlog::logger> m_logger;
 
   glm::uvec2 m_imageSize{0, 0};
-  unsigned int m_samplesPerPixel = 64;
-  unsigned int m_maxRayDepth = 12;
 
   Scenes m_sceneType{Scenes::DefaultScene};
   HittableObjectList m_scene;

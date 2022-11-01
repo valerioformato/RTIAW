@@ -73,13 +73,13 @@ void Renderer::Render() {
     for (unsigned int i = 0; i < m_imageSize.x; ++i) {
       const auto pixelCoord = glm::uvec2{i, lineCoord};
       color pixel_color{0, 0, 0};
-      for (unsigned int i_sample = 0; i_sample < m_samplesPerPixel; ++i_sample) {
+      for (unsigned int i_sample = 0; i_sample < samplesPerPixel; ++i_sample) {
         const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.x - 1);
         const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(m_rnGenerator)) / (m_imageSize.y - 1);
         Ray r = m_camera->NewRay(u, v);
-        pixel_color += ShootRay(r, m_maxRayDepth);
+        pixel_color += ShootRay(r, maxRayDepth);
       }
-      WritePixelToBuffer(pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+      WritePixelToBuffer(pixelCoord.x, pixelCoord.y, samplesPerPixel, pixel_color);
     }
   };
 
@@ -94,13 +94,13 @@ void Renderer::Render() {
       for (unsigned int i = minCoo.x; i < maxCoo.x; ++i) {
         color pixel_color{0, 0, 0};
         const auto pixelCoord = glm::uvec2{i, j - 1};
-        for (unsigned int i_sample = 0; i_sample < m_samplesPerPixel; ++i_sample) {
+        for (unsigned int i_sample = 0; i_sample < samplesPerPixel; ++i_sample) {
           const auto u = (static_cast<float>(pixelCoord.x) + m_unifDistribution(generator)) / (m_imageSize.x - 1);
           const auto v = (static_cast<float>(pixelCoord.y) + m_unifDistribution(generator)) / (m_imageSize.y - 1);
           Ray r = m_camera->NewRay(u, v);
-          pixel_color += ShootRay(r, m_maxRayDepth);
+          pixel_color += ShootRay(r, maxRayDepth);
         }
-        WritePixelToBuffer(pixelCoord.x, pixelCoord.y, m_samplesPerPixel, pixel_color);
+        WritePixelToBuffer(pixelCoord.x, pixelCoord.y, samplesPerPixel, pixel_color);
       }
     }
   };
