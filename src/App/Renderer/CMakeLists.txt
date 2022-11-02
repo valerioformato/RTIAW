@@ -1,4 +1,5 @@
 set(RENDERER_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/Shapes/MovingSphere.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Shapes/Sphere.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Shapes/Plane.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Shapes/Parallelogram.cpp"

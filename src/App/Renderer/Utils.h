@@ -22,12 +22,17 @@ template <typename T, qualifier Q> float azimuth(glm::vec<3, T, Q> vec) { return
 } // namespace glm
 
 namespace RTIAW::Random {
+template <typename T> T uniformRand(T min, T max) {
+  static thread_local std::mt19937 generator{std::random_device{}()};
+  return std::uniform_real_distribution<T>{min, max}(generator);
+}
+
 // All functions adapted from glm source code.
 // On Linux the rand() syscall has global lock that really hurts multithreading performances
 
 template <typename T> glm::vec<2, T, glm::defaultp> diskRand(T Radius) {
   static thread_local std::mt19937 generator{std::random_device{}()};
-  static thread_local std::uniform_real_distribution<T> unif{T(-Radius), T(Radius)};
+  std::uniform_real_distribution<T> unif{T(-Radius), T(Radius)};
 
   assert(Radius > static_cast<T>(0));
 
@@ -44,7 +49,7 @@ template <typename T> glm::vec<2, T, glm::defaultp> diskRand(T Radius) {
   return Result;
 }
 
-template <typename T> GLM_FUNC_QUALIFIER glm::vec<3, T, glm::defaultp> sphericalRand(T Radius) {
+template <typename T> glm::vec<3, T, glm::defaultp> sphericalRand(T Radius) {
   static thread_local std::mt19937 generator{std::random_device{}()};
   static thread_local std::uniform_real_distribution<T> unif1{T(0.0), T(6.283185307179586476925286766559)};
   static thread_local std::uniform_real_distribution<T> unif2{T(-1), T(1)};

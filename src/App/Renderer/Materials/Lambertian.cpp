@@ -13,6 +13,6 @@ std::optional<ScatteringRecord> Lambertian::Scatter(const Ray &r_in, const HitRe
   if (glm::any(glm::epsilonEqual(scatter_direction, vec3{0, 0, 0}, std::numeric_limits<float>::epsilon())))
     scatter_direction = rec.normal;
 
-  return ScatteringRecord{m_albedo, Ray{rec.p, scatter_direction}};
+  return ScatteringRecord{m_albedo, Ray{rec.p, scatter_direction, r_in.time}};
 }
 } // namespace RTIAW::Render::Materials

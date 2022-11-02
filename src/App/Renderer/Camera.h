@@ -15,6 +15,11 @@ public:
 
   Camera(CameraOrientation orientation, float verticalFov, float aspectRatio, float aperture, float focusDist);
 
+  void SetShutterTime(float open, float close) {
+    m_shutterOpen = open;
+    m_shutterClose = close;
+  }
+
   Ray NewRay(float u, float v) const;
 
 private:
@@ -28,6 +33,8 @@ private:
   vec3 m_vertical;
   vec3 u, w, v;
   point3 m_lowerLeftCorner;
+  float m_shutterOpen{0};
+  float m_shutterClose{1};
 };
 } // namespace RTIAW::Render
 

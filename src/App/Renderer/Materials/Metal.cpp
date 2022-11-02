@@ -11,7 +11,7 @@ std::optional<ScatteringRecord> Metal::Scatter(const Ray &r_in, const HitRecord 
 
   if (const vec3 new_direction = glm::reflect(r_in.direction, rec.normal) + m_fuzzyness * Random::sphericalRand(1.0f);
       glm::dot(new_direction, rec.normal) > 0) {
-    return ScatteringRecord{m_albedo, Ray{rec.p, new_direction}};
+    return ScatteringRecord{m_albedo, Ray{rec.p, new_direction, r_in.time}};
   }
 
   return empty_result;

@@ -27,7 +27,8 @@ Ray Camera::NewRay(float s, float t) const {
   glm::vec2 randVec = Random::diskRand(m_lensRadius);
 
   vec3 offset = u * randVec.x + v * randVec.y;
+  float ray_time = Random::uniformRand(m_shutterOpen, m_shutterClose);
 
-  return Ray(m_origin + offset, m_lowerLeftCorner + s * m_horizontal + t * m_vertical - m_origin - offset);
+  return Ray(m_origin + offset, m_lowerLeftCorner + s * m_horizontal + t * m_vertical - m_origin - offset, ray_time);
 }
 } // namespace RTIAW::Render

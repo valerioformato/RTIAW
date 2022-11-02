@@ -17,9 +17,9 @@ std::optional<ScatteringRecord> Dielectric::Scatter(const Ray &r_in, const HitRe
 
   if (const bool cannot_refract = refraction_ratio * sin_theta > 1.0f;
       cannot_refract || Reflectance(cos_theta, refraction_ratio) > m_unifDistribution(m_rnGenerator)) {
-    return ScatteringRecord{white, Ray{rec.p, glm::reflect(r_in.direction, rec.normal)}};
+    return ScatteringRecord{white, Ray{rec.p, glm::reflect(r_in.direction, rec.normal), r_in.time}};
   } else {
-    return ScatteringRecord{white, Ray{rec.p, glm::refract(r_in.direction, rec.normal, refraction_ratio)}};
+    return ScatteringRecord{white, Ray{rec.p, glm::refract(r_in.direction, rec.normal, refraction_ratio), r_in.time}};
   }
 }
 } // namespace RTIAW::Render::Materials
