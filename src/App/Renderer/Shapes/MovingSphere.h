@@ -1,7 +1,6 @@
 #ifndef RTIAW_shapes_movingsphere
 #define RTIAW_shapes_movingsphere
 
-#include <memory>
 #include <optional>
 
 #include "App/Renderer/HitRecord.h"
