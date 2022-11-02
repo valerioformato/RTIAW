@@ -33,7 +33,8 @@ void Renderer::LoadScene() {
             color randColor{m_unifDistribution(m_rnGenerator), m_unifDistribution(m_rnGenerator),
                             m_unifDistribution(m_rnGenerator)};
             auto albedo = randColor * randColor;
-            m_scene.Add(Shapes::Sphere(center, 0.2f), Materials::Lambertian(albedo));
+            auto center2 = center + vec3(0, 0.5 * m_unifDistribution(m_rnGenerator), 0);
+            m_scene.Add(Shapes::MovingSphere(center, center2, 0.0f, 1.0f, 0.2f), Materials::Lambertian(albedo));
           } else if (choose_mat < 0.95f) {
             // metal
             color albedo{0.5f * (1.0f + m_unifDistribution(m_rnGenerator)),
