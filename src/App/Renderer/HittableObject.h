@@ -7,6 +7,7 @@
 
 #include "Materials/Materials.h"
 #include "Ray.h"
+#include "Shapes/AABB.h"
 #include "Shapes/Shapes.h"
 
 namespace RTIAW::Render {
@@ -21,6 +22,8 @@ public:
   [[nodiscard]] float FastHit(const Ray &r, float t_min, float t_max) const;
   [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, float t) const;
   [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, float t_min, float t_max) const;
+
+  [[nodiscard]] std::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
 
 private:
   Shape m_shape;

@@ -1,5 +1,6 @@
 #include <spdlog/spdlog.h>
 
+#include "AABB.h"
 #include "App/Renderer/Shapes/Sphere.h"
 
 template <typename T> int sign(T val) { return (T(0) < val) - (val < T(0)); }
@@ -58,5 +59,9 @@ std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const floa
   } else {
     return empty_result;
   }
+}
+
+std::optional<Shapes::AABB> Sphere::BoundingBox(float time0, float time1) const {
+  return AABB{m_center - vec3(m_radius, m_radius, m_radius), m_center + vec3(m_radius, m_radius, m_radius)};
 }
 } // namespace RTIAW::Render::Shapes

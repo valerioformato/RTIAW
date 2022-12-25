@@ -25,6 +25,8 @@ public:
   [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
   [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 
+  [[nodiscard]] std::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
+
 protected:
   Shapes::Plane m_plane{};          // The origin of this plane lies on one vertex of the parallelogram
   std::array<vec3, 2> m_vertices{}; // Coordinates of two vertices w.r.t. the origin of the plane

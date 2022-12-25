@@ -68,4 +68,16 @@ std::optional<HitRecord> Parallelogram::Hit(const Ray &r, const float t_min, con
     return empty_result;
   }
 }
+
+std::optional<Shapes::AABB> Parallelogram::BoundingBox(float time0, float time1) const {
+  point3 a{std::numeric_limits<decltype(point3::x)>::max()};
+  point3 b{std::numeric_limits<decltype(point3::x)>::lowest()};
+
+  for (const auto &vertex : Vertices()) {
+    a = glm::min(a, vertex);
+    b = glm::max(b, vertex);
+  }
+
+  return AABB{a, b};
+}
 } // namespace RTIAW::Render::Shapes

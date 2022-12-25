@@ -1,4 +1,5 @@
 #include "App/Renderer/Shapes/MovingSphere.h"
+#include "AABB.h"
 
 template <typename T> int sign(T val) { return (T(0) < val) - (val < T(0)); }
 
@@ -60,5 +61,11 @@ std::optional<HitRecord> MovingSphere::Hit(const Ray &r, const float t_min, cons
   } else {
     return empty_result;
   }
+}
+
+std::optional<Shapes::AABB> MovingSphere::BoundingBox(float time0, float time1) const {
+  AABB box0(Center(time0) - vec3(m_radius, m_radius, m_radius), Center(time0) + vec3(m_radius, m_radius, m_radius));
+  AABB box1(Center(time1) - vec3(m_radius, m_radius, m_radius), Center(time1) + vec3(m_radius, m_radius, m_radius));
+  return SurroundingBox(box0, box1);
 }
 } // namespace RTIAW::Render::Shapes

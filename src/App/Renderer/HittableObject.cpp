@@ -1,6 +1,9 @@
+#include "HittableObject.h"
 #include "HittableObjectList.h"
 
-template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template <class... Ts> struct overloaded : Ts... {
+  using Ts::operator()...;
+};
 // explicit deduction guide (not needed as of C++20)
 template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
@@ -27,6 +30,13 @@ std::optional<HitRecord> HittableObject::Hit(const Ray &r, float t_min, float t_
   return std::visit(
       overloaded{
           [&](const auto &shape) { return shape.Hit(r, t_min, t_max); },
+      },
+      m_shape);
+}
+std::optional<Shapes::AABB> HittableObject::BoundingBox(float time0, float time1) const {
+  return std::visit(
+      overloaded{
+          [&](const auto &shape) { return shape.BoundingBox(time0, time1); },
       },
       m_shape);
 }

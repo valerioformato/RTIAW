@@ -17,6 +17,8 @@ public:
   [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
   [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 
+  [[nodiscard]] std::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
+
 public:
   point3 m_center{0, 0, 0};
   float m_radius{0};

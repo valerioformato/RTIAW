@@ -2,7 +2,8 @@
 float RTIAW::Render::Shapes::AABB::FastHit(const RTIAW::Render::Ray &r, const float t_min, const float t_max) const {
   float tM = t_max;
   float tm = t_min;
-  for (int a = 0; a < 3; a++) {
+
+  for (int a = 0; a < 3; ++a) {
     auto invD = 1.0f / r.direction[a];
     auto t0 = (m_a[a] - r.origin[a]) * invD;
     auto t1 = (m_b[a] - r.origin[a]) * invD;
