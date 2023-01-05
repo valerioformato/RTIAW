@@ -10,6 +10,7 @@ set(RENDERER_SOURCES
         "${CMAKE_CURRENT_SOURCE_DIR}/Materials/Metal.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Materials/Dielectric.cpp"
 
+        "${CMAKE_CURRENT_SOURCE_DIR}/BVH.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/Camera.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/HittableObject.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/HittableObjectList.cpp"

@@ -72,6 +72,12 @@ namespace RTIAW::Render {
 using vec3 = glm::vec3;
 using point3 = glm::vec3;
 using color = glm::vec3;
+
+template <class... Ts> struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 } // namespace RTIAW::Render
 
 #endif

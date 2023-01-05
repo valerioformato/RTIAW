@@ -62,6 +62,7 @@ std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const floa
 }
 
 std::optional<Shapes::AABB> Sphere::BoundingBox(float time0, float time1) const {
+  // TODO: it would be better to cache this, maybe?
   return AABB{m_center - vec3(m_radius, m_radius, m_radius), m_center + vec3(m_radius, m_radius, m_radius)};
 }
 } // namespace RTIAW::Render::Shapes
