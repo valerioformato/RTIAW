@@ -52,12 +52,10 @@ HitRecord Sphere::ComputeHitRecord(const Ray &r, const float t) const {
 }
 
 std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
-  static constexpr std::optional<HitRecord> empty_result{};
-
   if (const auto t = FastHit(r, t_min, t_max); t < std::numeric_limits<float>::max()) {
     return ComputeHitRecord(r, t);
   } else {
-    return empty_result;
+    return std::nullopt;
   }
 }
 

@@ -22,9 +22,17 @@ template <typename T, qualifier Q> float azimuth(glm::vec<3, T, Q> vec) { return
 } // namespace glm
 
 namespace RTIAW::Random {
-template <typename T> T uniformRand(T min, T max) {
+
+template <typename T>
+requires std::is_floating_point_v<T> T uniformRand(T min, T max) {
   static thread_local std::mt19937 generator{std::random_device{}()};
   return std::uniform_real_distribution<T>{min, max}(generator);
+}
+
+template <typename T>
+requires std::is_integral_v<T> T uniformRand(T min, T max) {
+  static thread_local std::mt19937 generator{std::random_device{}()};
+  return std::uniform_int_distribution<T>{min, max}(generator);
 }
 
 // All functions adapted from glm source code.
@@ -73,9 +81,7 @@ using vec3 = glm::vec3;
 using point3 = glm::vec3;
 using color = glm::vec3;
 
-template <class... Ts> struct overloaded : Ts... {
-  using Ts::operator()...;
-};
+template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 // explicit deduction guide (not needed as of C++20)
 template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 } // namespace RTIAW::Render
