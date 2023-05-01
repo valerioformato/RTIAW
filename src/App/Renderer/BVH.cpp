@@ -31,10 +31,8 @@ BVHNode::BVHNode(const std::span<const HittableObject> src_objects, double time0
   size_t object_span = objects.size();
 
   if (object_span == 1) {
-    spdlog::debug("Constructing from n=1 objects");
     left = right = std::make_shared<TreeNode>(objects.front());
   } else if (object_span == 2) {
-    spdlog::debug("Constructing from n=2 objects");
     if (box_compare(objects.front(), objects.back())) {
       left = std::make_shared<TreeNode>(objects.front());
       right = std::make_shared<TreeNode>(objects.back());
@@ -43,8 +41,6 @@ BVHNode::BVHNode(const std::span<const HittableObject> src_objects, double time0
       right = std::make_shared<TreeNode>(objects.front());
     }
   } else {
-    spdlog::debug("Constructing from n>2 objects");
-
     std::ranges::sort(objects, box_compare);
 
     auto midIter = std::next(objects.begin(), object_span / 2);
