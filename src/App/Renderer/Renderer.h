@@ -55,7 +55,7 @@ private:
 
   // main rendering thread
   std::thread m_renderingThread;
-  Utils::Pool m_threadPool{};
+  Utils::Pool m_threadPool{8};
 
   // our camera :)
   std::unique_ptr<Camera> m_camera;

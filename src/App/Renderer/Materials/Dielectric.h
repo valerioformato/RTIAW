@@ -1,7 +1,7 @@
 #ifndef RTIAW_material_dielectric
 #define RTIAW_material_dielectric
 
-#include <optional>
+#include <tl/optional.hpp>
 
 #include "App/Renderer/HitRecord.h"
 #include "App/Renderer/ScatteringRecord.h"
@@ -14,7 +14,7 @@ public:
   explicit Dielectric(const float refractionIndex)
       : m_refractionIndex(refractionIndex), m_invRefractionIndex(1.0f / m_refractionIndex) {}
 
-  [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
+  [[nodiscard]] tl::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
 
 private:
   float m_refractionIndex;

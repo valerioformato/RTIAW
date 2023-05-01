@@ -9,12 +9,13 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <numeric>
 
 namespace RTIAW::Render {
 
-BVHNode::BVHNode(const std::vector<HittableObject> &src_objects, size_t start, size_t end, double time0, double time1) {
-  // TODO: can we use std::span here?
-  auto objects = src_objects; // Create a modifiable array of the source scene objects
+BVHNode::BVHNode(const std::span<const HittableObject> src_objects, double time0, double time1) {
+  // Create a modifiable collection of the source scene objects
+  std::vector<HittableObject> objects{src_objects.begin(), src_objects.end()};
 
   int axis = Random::uniformRand<int>(0, 2);
   auto box_compare = [axis](const HittableObject &a, const HittableObject &b) {
@@ -27,24 +28,29 @@ BVHNode::BVHNode(const std::vector<HittableObject> &src_objects, size_t start, s
     return maybe_box_a->A()[axis] < maybe_box_b->A()[axis];
   };
 
-  size_t object_span = end - start;
+  size_t object_span = objects.size();
 
   if (object_span == 1) {
-    left = right = std::make_shared<TreeNode>(objects[start]);
+    spdlog::debug("Constructing from n=1 objects");
+    left = right = std::make_shared<TreeNode>(objects.front());
   } else if (object_span == 2) {
-    if (box_compare(objects[start], objects[start + 1])) {
-      left = std::make_shared<TreeNode>(objects[start]);
-      right = std::make_shared<TreeNode>(objects[start + 1]);
+    spdlog::debug("Constructing from n=2 objects");
+    if (box_compare(objects.front(), objects.back())) {
+      left = std::make_shared<TreeNode>(objects.front());
+      right = std::make_shared<TreeNode>(objects.back());
     } else {
-      left = std::make_shared<TreeNode>(objects[start + 1]);
-      right = std::make_shared<TreeNode>(objects[start]);
+      left = std::make_shared<TreeNode>(objects.back());
+      right = std::make_shared<TreeNode>(objects.front());
     }
   } else {
-    std::sort(objects.begin() + start, objects.begin() + end, box_compare);
+    spdlog::debug("Constructing from n>2 objects");
 
-    auto mid = start + object_span / 2;
-    left = std::make_shared<TreeNode>(BVHNode{objects, start, mid, time0, time1});
-    right = std::make_shared<TreeNode>(BVHNode{objects, mid, end, time0, time1});
+    std::ranges::sort(objects, box_compare);
+
+    auto midIter = std::next(objects.begin(), object_span / 2);
+
+    left = std::make_shared<TreeNode>(BVHNode{{objects.begin(), midIter}, time0, time1});
+    right = std::make_shared<TreeNode>(BVHNode{{midIter, objects.end()}, time0, time1});
   }
 
   auto maybe_box_left = std::visit(overloaded{[&](auto &element) { return element.BoundingBox(time0, time1); }}, *left);
@@ -57,7 +63,7 @@ BVHNode::BVHNode(const std::vector<HittableObject> &src_objects, size_t start, s
   boundingBox = Shapes::SurroundingBox(*maybe_box_left, *maybe_box_right);
 }
 
-std::optional<HitRecord> BVHNode::Hit(const Ray &r, const float t_min, float t_max) const {
+tl::optional<HitRecord> BVHNode::Hit(const Ray &r, const float t_min, float t_max) const {
   if (boundingBox.FastHit(r, t_min, t_max) < std::numeric_limits<float>::max()) {
     auto left_hit_record =
         std::visit(overloaded([&](const auto &element) { return element.Hit(r, t_min, t_max); }), *left);
@@ -73,8 +79,8 @@ std::optional<HitRecord> BVHNode::Hit(const Ray &r, const float t_min, float t_m
     }
   }
 
-  return std::nullopt;
+  return tl::nullopt;
 }
 
-std::optional<Shapes::AABB> BVHNode::BoundingBox(double time0, double time1) const { return boundingBox; }
+tl::optional<Shapes::AABB> BVHNode::BoundingBox(double time0, double time1) const { return boundingBox; }
 } // namespace RTIAW::Render

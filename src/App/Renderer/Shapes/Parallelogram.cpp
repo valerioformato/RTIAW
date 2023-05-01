@@ -59,8 +59,8 @@ HitRecord Parallelogram::ComputeHitRecord(const Ray &r, const float t) const {
   return {t, r.At(t), m_plane.Normal(), glm::dot(m_plane.Normal(), r.direction) < 0};
 }
 
-std::optional<HitRecord> Parallelogram::Hit(const Ray &r, const float t_min, const float t_max) const {
-  static constexpr std::optional<HitRecord> empty_result{};
+tl::optional<HitRecord> Parallelogram::Hit(const Ray &r, const float t_min, const float t_max) const {
+  static constexpr tl::optional<HitRecord> empty_result{};
 
   if (const auto t = FastHit(r, t_min, t_max); t < std::numeric_limits<float>::max()) {
     return ComputeHitRecord(r, t);
@@ -69,7 +69,7 @@ std::optional<HitRecord> Parallelogram::Hit(const Ray &r, const float t_min, con
   }
 }
 
-std::optional<Shapes::AABB> Parallelogram::BoundingBox(float time0, float time1) const {
+tl::optional<Shapes::AABB> Parallelogram::BoundingBox(float time0, float time1) const {
   point3 a{std::numeric_limits<decltype(point3::x)>::max()};
   point3 b{std::numeric_limits<decltype(point3::x)>::lowest()};
 

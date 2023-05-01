@@ -2,7 +2,7 @@
 #define RTIAW_shapes_sphere
 
 #include <memory>
-#include <optional>
+#include <tl/optional.hpp>
 
 #include "App/Renderer/HitRecord.h"
 #include "App/Renderer/Utils.h"
@@ -15,9 +15,9 @@ public:
 
   [[nodiscard]] float FastHit(const Ray &r, const float t_min, const float t_max) const;
   [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
-  [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
+  [[nodiscard]] tl::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 
-  [[nodiscard]] std::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
+  [[nodiscard]] tl::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
 
 public:
   point3 m_center{0, 0, 0};

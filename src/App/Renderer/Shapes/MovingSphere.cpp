@@ -53,8 +53,8 @@ HitRecord MovingSphere::ComputeHitRecord(const Ray &r, const float t) const {
   return result;
 }
 
-std::optional<HitRecord> MovingSphere::Hit(const Ray &r, const float t_min, const float t_max) const {
-  static constexpr std::optional<HitRecord> empty_result{};
+tl::optional<HitRecord> MovingSphere::Hit(const Ray &r, const float t_min, const float t_max) const {
+  static constexpr tl::optional<HitRecord> empty_result{};
 
   if (const auto t = FastHit(r, t_min, t_max); t < std::numeric_limits<float>::max()) {
     return ComputeHitRecord(r, t);
@@ -63,7 +63,7 @@ std::optional<HitRecord> MovingSphere::Hit(const Ray &r, const float t_min, cons
   }
 }
 
-std::optional<Shapes::AABB> MovingSphere::BoundingBox(float time0, float time1) const {
+tl::optional<Shapes::AABB> MovingSphere::BoundingBox(float time0, float time1) const {
   AABB box0(Center(time0) - vec3(m_radius, m_radius, m_radius), Center(time0) + vec3(m_radius, m_radius, m_radius));
   AABB box1(Center(time1) - vec3(m_radius, m_radius, m_radius), Center(time1) + vec3(m_radius, m_radius, m_radius));
   return SurroundingBox(box0, box1);

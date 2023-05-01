@@ -14,7 +14,7 @@ public:
   explicit Metal(const color &albedo, const float fuzzyness)
       : m_albedo(albedo), m_fuzzyness{fuzzyness < 1.0f ? fuzzyness : 1.0f} {}
 
-  [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
+  [[nodiscard]] tl::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
 
 private:
   color m_albedo;

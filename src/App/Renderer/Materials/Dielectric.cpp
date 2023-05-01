@@ -8,7 +8,7 @@ static std::mt19937 m_rnGenerator{};
 static std::uniform_real_distribution<float> m_unifDistribution{0.0f, 1.0f};
 
 namespace RTIAW::Render::Materials {
-std::optional<ScatteringRecord> Dielectric::Scatter(const Ray &r_in, const HitRecord &rec) const {
+tl::optional<ScatteringRecord> Dielectric::Scatter(const Ray &r_in, const HitRecord &rec) const {
   static constexpr color white{1.0f, 1.0f, 1.0f};
   const float refraction_ratio = rec.front_face ? m_invRefractionIndex : m_refractionIndex;
 

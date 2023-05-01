@@ -134,7 +134,7 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
     return color(0, 0, 0);
 
   if (const auto &[o_hitRecord, o_scatterResult] = m_scene.Hit(ray, 0.001f, RTIAW::Utils::infinity); o_hitRecord) {
-    const auto &[t, p, normal, front_face] = o_hitRecord.value();
+    const auto &[t, p, normal, matIdx, front_face] = o_hitRecord.value();
 
     if (o_scatterResult) {
       const auto &[attenuation, scattered] = o_scatterResult.value();

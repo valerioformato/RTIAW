@@ -13,7 +13,7 @@ class Lambertian {
 public:
   explicit Lambertian(const color &albedo) : m_albedo(albedo) {}
 
-  [[nodiscard]] std::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
+  [[nodiscard]] tl::optional<ScatteringRecord> Scatter(const Ray &r_in, const HitRecord &rec) const;
 
 public:
   color m_albedo;

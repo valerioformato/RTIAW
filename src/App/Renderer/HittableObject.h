@@ -11,7 +11,7 @@
 #include "Shapes/Shapes.h"
 
 namespace RTIAW::Render {
-using HitResult = std::pair<std::optional<HitRecord>, std::optional<ScatteringRecord>>;
+using HitResult = std::pair<tl::optional<HitRecord>, tl::optional<ScatteringRecord>>;
 class HittableObject {
 
 public:
@@ -21,9 +21,9 @@ public:
   [[nodiscard]] size_t MaterialIndex() const { return m_materialIndex; };
   [[nodiscard]] float FastHit(const Ray &r, float t_min, float t_max) const;
   [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, float t) const;
-  [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, float t_min, float t_max) const;
+  [[nodiscard]] tl::optional<HitRecord> Hit(const Ray &r, float t_min, float t_max) const;
 
-  [[nodiscard]] std::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
+  [[nodiscard]] tl::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
 
 private:
   Shape m_shape;

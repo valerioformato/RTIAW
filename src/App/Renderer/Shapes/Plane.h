@@ -2,7 +2,7 @@
 #define RTIAW_shapes_plane
 
 #include <array>
-#include <optional>
+#include <tl/optional.hpp>
 
 #include "App/Renderer/HitRecord.h"
 #include "App/Renderer/Shapes/AABB.h"
@@ -24,9 +24,9 @@ public:
 
   [[nodiscard]] float FastHit(const Ray &r, const float t_min, const float t_max) const;
   [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
-  [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
+  [[nodiscard]] tl::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 
-  [[nodiscard]] std::optional<Shapes::AABB> BoundingBox(float time0, float time1) const { return std::nullopt; };
+  [[nodiscard]] tl::optional<Shapes::AABB> BoundingBox(float time0, float time1) const;
 
 private:
   point3 m_point{};

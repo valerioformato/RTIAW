@@ -6,7 +6,7 @@
 #include "App/Renderer/Utils.h"
 
 namespace RTIAW::Render::Materials {
-std::optional<ScatteringRecord> Lambertian::Scatter(const Ray &r_in, const HitRecord &rec) const {
+tl::optional<ScatteringRecord> Lambertian::Scatter(const Ray &r_in, const HitRecord &rec) const {
   vec3 scatter_direction = rec.normal + Random::sphericalRand(1.0f);
 
   // Catch degenerate scatter direction

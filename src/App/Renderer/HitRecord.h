@@ -12,6 +12,7 @@ struct HitRecord {
   float t;
   point3 p;
   vec3 normal;
+  signed materialIndex{-1};
   bool front_face;
 
   void SetFaceNormal(const Ray &r, const vec3 &outward_normal) {

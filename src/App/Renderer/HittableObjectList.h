@@ -3,6 +3,9 @@
 
 #include <memory>
 #include <vector>
+#include <mutex>
+
+#include "BVH.h"
 
 #include "HittableObject.h"
 
@@ -21,6 +24,12 @@ public:
 private:
   std::vector<HittableObject> m_objects;
   std::vector<Material> materials;
+
+  mutable std::mutex m_bvhMutex;
+  mutable bool m_bvhIsValid{false};
+  mutable BVHNode m_bvh;
+
+  void UpdateBVH(float t_min, float t_max) const;
 };
 } // namespace RTIAW::Render
 

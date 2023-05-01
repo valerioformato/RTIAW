@@ -2,7 +2,7 @@
 #define RTIAW_shapes_rectangle
 
 #include <memory>
-#include <optional>
+#include <tl/optional.hpp>
 
 #include "App/Renderer/HitRecord.h"
 #include "App/Renderer/Utils.h"
@@ -17,7 +17,7 @@ public:
 
   //[[nodiscard]] float FastHit(const Ray &r, const float t_min, const float t_max) const;
   //[[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
-  //[[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
+  //[[nodiscard]] tl::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 };
 } // namespace RTIAW::Render::Shapes
 

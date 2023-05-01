@@ -51,16 +51,17 @@ HitRecord Sphere::ComputeHitRecord(const Ray &r, const float t) const {
   return result;
 }
 
-std::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
+tl::optional<HitRecord> Sphere::Hit(const Ray &r, const float t_min, const float t_max) const {
   if (const auto t = FastHit(r, t_min, t_max); t < std::numeric_limits<float>::max()) {
     return ComputeHitRecord(r, t);
   } else {
-    return std::nullopt;
+    return tl::nullopt;
   }
 }
 
-std::optional<Shapes::AABB> Sphere::BoundingBox(float time0, float time1) const {
+tl::optional<Shapes::AABB> Sphere::BoundingBox(float time0, float time1) const {
   // TODO: it would be better to cache this, maybe?
   return AABB{m_center - vec3(m_radius, m_radius, m_radius), m_center + vec3(m_radius, m_radius, m_radius)};
 }
+
 } // namespace RTIAW::Render::Shapes

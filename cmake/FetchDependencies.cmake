@@ -43,3 +43,16 @@ if(NOT spdlog_POPULATED)
   FetchContent_Populate(spdlog)
   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
+# === tl::optional ===
+FetchContent_Declare(
+  tloptional
+  GIT_REPOSITORY https://github.com/TartanLlama/optional
+  GIT_TAG v1.1.0)
+FetchContent_GetProperties(tloptional)
+if(NOT tloptional_POPULATED)
+  set(OPTIONAL_BUILD_PACKAGE OFF)
+  set(OPTIONAL_BUILD_TESTS OFF)
+  FetchContent_Populate(tloptional)
+  add_subdirectory(${tloptional_SOURCE_DIR} ${tloptional_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()

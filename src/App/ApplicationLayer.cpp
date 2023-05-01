@@ -14,7 +14,7 @@
 namespace RTIAW {
 ApplicationLayer::ApplicationLayer() : m_logger{spdlog::stdout_color_st("ApplicationLayer")} {
   // FIXME: remove after debugging
-  // spdlog::set_level(spdlog::level::debug);
+  spdlog::set_level(spdlog::level::debug);
 
   // TODO: later on let this be picked in a ImGui dropdown maybe?
   // m_renderer.SetScene(RTIAW::Render::Renderer::Scenes::TestScene);
@@ -29,7 +29,7 @@ void ApplicationLayer::OnUIRender() {
   //  ImGui::SetNextWindowSize(viewport->Size);
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
   ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-  ImGui::Begin("Rendered Image", nullptr, ImGuiWindowFlags_NoInputs);
+  ImGui::Begin("Rendered Image", nullptr, 0 /* ImGuiWindowFlags_NoInputs */);
   uint32_t imx = ImGui::GetContentRegionAvail().x;
   uint32_t imy = ImGui::GetContentRegionAvail().y;
   if (!m_image) {

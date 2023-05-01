@@ -1,7 +1,7 @@
 #ifndef RTIAW_shapes_aabb
 #define RTIAW_shapes_aabb
 
-#include <optional>
+#include <tl/optional.hpp>
 
 #include "App/Renderer/HitRecord.h"
 #include "App/Renderer/Utils.h"
@@ -17,8 +17,6 @@ public:
   [[nodiscard]] point3 B() const { return m_b; }
 
   [[nodiscard]] float FastHit(const Ray &r, const float t_min, const float t_max) const;
-  //  [[nodiscard]] HitRecord ComputeHitRecord(const Ray &r, const float t) const;
-  //  [[nodiscard]] std::optional<HitRecord> Hit(const Ray &r, const float t_min, const float t_max) const;
 
 private:
   point3 m_a;
