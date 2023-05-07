@@ -16,6 +16,7 @@ namespace RTIAW::Render {
 class Renderer {
 public:
   enum class RenderState { Ready, Running, Finished, Stopped };
+  enum class Strategy { Quads, Lines };
   enum class Scenes { DefaultScene, ThreeSpheres, TestScene };
 
   Renderer() : m_logger{spdlog::stdout_color_st("Renderer")} {}
@@ -24,6 +25,7 @@ public:
 
   void SetImageSize(unsigned int x, unsigned int y);
   void SetScene(Scenes scene = Scenes::DefaultScene) { m_sceneType = scene; };
+  void SetStrategy(Strategy strat = Strategy::Quads) { m_strategy = strat; };
 
   void SetSamplesPerPixel(unsigned int nSamples) { samplesPerPixel = nSamples; }
   void SetMaxRayBounces(unsigned int nBounces) { maxRayDepth = nBounces; }
@@ -33,18 +35,20 @@ public:
 
   [[nodiscard]] Scenes Scene() const { return m_sceneType; }
   [[nodiscard]] RenderState State() const { return m_state; }
-  [[nodiscard]] const void *ImageBuffer() const { return m_renderBuffer.empty() ? nullptr : m_renderBuffer.data(); }
+  [[nodiscard]] const void *ImageBuffer();
 
   unsigned int samplesPerPixel = 64;
   unsigned int maxRayDepth = 12;
   unsigned int lastRenderTimeMS = 0;
-  
+  bool shouldAccumulate = false;
+
 private:
   std::shared_ptr<spdlog::logger> m_logger;
 
   glm::uvec2 m_imageSize{0, 0};
 
   Scenes m_sceneType{Scenes::DefaultScene};
+  Strategy m_strategy{Strategy::Quads};
   HittableObjectList m_scene;
   void LoadScene();
 
@@ -52,6 +56,8 @@ private:
 
   // render buffer
   std::vector<uint8_t> m_renderBuffer{};
+  std::vector<float> m_renderBufferAccumulator{};
+  std::vector<float> m_renderBufferSamples{};
 
   // main rendering thread
   std::thread m_renderingThread;
@@ -68,6 +74,7 @@ private:
   std::vector<Quad> SplitImage(unsigned int quadSize = 100) const;
   // actual internal implementation
   void Render();
+  void RenderImage();
   color ShootRay(const Ray &ray, unsigned int depth);
   void WritePixelToBuffer(unsigned int ix, unsigned int iy, unsigned int samples_per_pixel, color pixel_color);
 

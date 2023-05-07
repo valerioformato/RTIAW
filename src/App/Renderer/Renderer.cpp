@@ -1,4 +1,6 @@
+#include <execution>
 #include <optional>
+#include <ranges>
 
 #include <fmt/chrono.h>
 #include <glm/gtc/random.hpp>
@@ -25,8 +27,14 @@ Renderer::~Renderer() {
 
 void Renderer::SetImageSize(unsigned int x, unsigned int y) {
   m_imageSize = glm::uvec2{x, y};
+
+  // reset all buffers
   m_renderBuffer.clear();
   m_renderBuffer.resize(x * y * 4);
+  m_renderBufferAccumulator.clear();
+  m_renderBufferAccumulator.resize(x * y * 4);
+  m_renderBufferSamples.clear();
+  m_renderBufferSamples.resize(x * y);
 }
 
 void Renderer::StartRender() {
@@ -105,20 +113,48 @@ void Renderer::Render() {
     }
   };
 
-  std::vector<std::future<void>> futures;
+  auto renderPixel = [this](unsigned int x, unsigned int y) {
+    if (m_state == RenderState::Stopped) {
+      return;
+    }
 
-  // Render per-line
-  // for (int j = m_imageSize.y - 1; j >= 0; --j) {
-  //  futures.push_back(m_threadPool.AddTask(renderLine, j));
-  //}
+    std::mt19937 generator{std::random_device{}()};
 
-  // Render per-quad
-  for (const auto &[minCoo, maxCoo] : SplitImage()) {
-    futures.push_back(m_threadPool.AddTask(renderQuad, minCoo, maxCoo));
+    const auto u = (x + m_unifDistribution(generator)) / (m_imageSize.x - 1);
+    const auto v = (y + m_unifDistribution(generator)) / (m_imageSize.y - 1);
+    Ray r = m_camera->NewRay(u, v);
+    color pixel_color = ShootRay(r, maxRayDepth);
+    WritePixelToBuffer(x, y, 1, pixel_color);
+  };
+
+  if (shouldAccumulate) {
+    std::vector<glm::uvec2> pixels(m_imageSize.x * m_imageSize.y);
+    for (size_t pix_idx = 0; pix_idx < pixels.size(); ++pix_idx) {
+      pixels[pix_idx].y = pix_idx % m_imageSize.y;
+      pixels[pix_idx].x = m_imageSize.x - pix_idx / m_imageSize.y - 1;
+    }
+
+    for (unsigned int isample = 0; isample < samplesPerPixel; ++isample) {
+      std::for_each(std::execution::par_unseq, begin(pixels), end(pixels),
+                    [renderPixel](glm::uvec2 pixel) { renderPixel(pixel.x, pixel.y); });
+    }
+  } else {
+    switch (m_strategy) {
+    case Strategy::Lines: { // Render per-line
+      auto rlines = std::ranges::views::iota(0) | std::ranges::views::take(m_imageSize.y) | std::ranges::views::reverse;
+      std::vector<unsigned int> lines(rlines.begin(), rlines.end());
+      std::for_each(std::execution::par_unseq, begin(lines), end(lines),
+                    [renderLine](unsigned int line_idx) { renderLine(line_idx); });
+      break;
+    }
+    case Strategy::Quads: { // Render per-quad
+      auto quads = SplitImage();
+      std::for_each(std::execution::par_unseq, begin(quads), end(quads),
+                    [renderQuad](const Quad &quad) { renderQuad(quad.minCoo, quad.maxCoo); });
+      break;
+    }
+    }
   }
-
-  // wait until all tasks are done...
-  std::for_each(begin(futures), end(futures), [](auto &future) { future.wait(); });
 
   const auto stopTime = std::chrono::system_clock::now();
   auto renderDuration = stopTime - startTime;
@@ -152,18 +188,38 @@ color Renderer::ShootRay(const Ray &ray, unsigned int depth) {
 }
 
 void Renderer::WritePixelToBuffer(unsigned int ix, unsigned int iy, unsigned int samples_per_pixel, color pixel_color) {
-  // flip the vertical coordinate because the display backend follow the opposite convention
-  // iy = m_imageSize.y - 1 - iy;
+  const unsigned int img_idx = 4 * (ix + iy * m_imageSize.x);
+  m_renderBufferAccumulator[img_idx] += pixel_color.r;
+  m_renderBufferAccumulator[img_idx + 1] += pixel_color.g;
+  m_renderBufferAccumulator[img_idx + 2] += pixel_color.b;
+  m_renderBufferAccumulator[img_idx + 3] += 1;
 
-  pixel_color /= samples_per_pixel;
-  pixel_color = glm::sqrt(pixel_color);
-  pixel_color = glm::clamp(pixel_color, 0.0f, 1.0f);
+  const unsigned int sample_idx = ix + iy * m_imageSize.x;
+  m_renderBufferSamples[sample_idx] += samples_per_pixel;
+}
 
-  const unsigned int idx = 4 * (ix + iy * m_imageSize.x);
-  m_renderBuffer[idx] = static_cast<uint8_t>(255 * pixel_color.r);
-  m_renderBuffer[idx + 1] = static_cast<uint8_t>(255 * pixel_color.g);
-  m_renderBuffer[idx + 2] = static_cast<uint8_t>(255 * pixel_color.b);
-  m_renderBuffer[idx + 3] = 255;
+const void *Renderer::ImageBuffer() {
+  if (m_renderBuffer.empty())
+    return nullptr;
+  else {
+    RenderImage();
+    return m_renderBuffer.data();
+  }
+}
+
+void Renderer::RenderImage() {
+  for (unsigned int pix_idx = 0; pix_idx < m_renderBufferSamples.size(); ++pix_idx) {
+    color pixel_color{m_renderBufferAccumulator[4 * pix_idx], m_renderBufferAccumulator[4 * pix_idx + 1],
+                      m_renderBufferAccumulator[4 * pix_idx + 2]};
+    pixel_color /= m_renderBufferSamples[pix_idx];
+    pixel_color = glm::sqrt(pixel_color);
+    pixel_color = glm::clamp(pixel_color, 0.0f, 1.0f);
+
+    m_renderBuffer[4 * pix_idx] = static_cast<uint8_t>(255 * pixel_color.r);
+    m_renderBuffer[4 * pix_idx + 1] = static_cast<uint8_t>(255 * pixel_color.g);
+    m_renderBuffer[4 * pix_idx + 2] = static_cast<uint8_t>(255 * pixel_color.b);
+    m_renderBuffer[4 * pix_idx + 3] = 255;
+  }
 };
 
 } // namespace RTIAW::Render

@@ -2,8 +2,8 @@
 #define RTIAW_hittableobjectlist
 
 #include <memory>
-#include <vector>
 #include <mutex>
+#include <vector>
 
 #include "BVH.h"
 
@@ -14,7 +14,7 @@ class HittableObjectList {
 public:
   HittableObjectList() = default;
 
-  void Clear() { m_objects.clear(); }
+  void Clear();
   void Add(const Shape &shape, const Material &material);
 
   [[nodiscard]] HitResult Hit(const Ray &r, float t_min, float t_max) const;

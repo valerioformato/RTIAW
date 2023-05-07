@@ -19,7 +19,6 @@ void Renderer::LoadScene() {
 
     m_camera = std::make_unique<Camera>(orientation, 20.0f, AspectRatio(), aperture, dist_to_focus);
 
-    // m_scene.Add(Shapes::Sphere(point3(0, -1000, 0), 1000.0f), Materials::Lambertian(color(0.5, 0.5, 0.5)));
     m_scene.Add(Shapes::Plane(point3(0, 0, 0), glm::vec3(0, 1, 0)), Materials::Lambertian(color(0.5, 0.5, 0.5)));
 
     for (int a = -11; a < 11; a++) {
@@ -33,8 +32,8 @@ void Renderer::LoadScene() {
             color randColor{m_unifDistribution(m_rnGenerator), m_unifDistribution(m_rnGenerator),
                             m_unifDistribution(m_rnGenerator)};
             auto albedo = randColor * randColor;
-            auto center2 = center + vec3(0, 0.5 * m_unifDistribution(m_rnGenerator), 0);
-            m_scene.Add(Shapes::MovingSphere(center, center2, 0.0f, 1.0f, 0.2f), Materials::Lambertian(albedo));
+            // m_scene.Add(Shapes::MovingSphere(center, center2, 0.0f, 1.0f, 0.2f), Materials::Lambertian(albedo));
+            m_scene.Add(Shapes::Sphere(center, 0.2f), Materials::Lambertian(albedo));
           } else if (choose_mat < 0.95f) {
             // metal
             color albedo{0.5f * (1.0f + m_unifDistribution(m_rnGenerator)),
@@ -81,7 +80,7 @@ void Renderer::LoadScene() {
 
     auto material = Materials::Lambertian(color(0.8, 0.2, 0.1));
     m_scene.Add(Shapes::Sphere(point3(-1, 0, 0), 1.0f), material);
-    // m_scene.Add(Shapes::Sphere(point3(0, 0, -2), 1.0f), material);
+    m_scene.Add(Shapes::Sphere(point3(0, 0, -2), 1.0f), material);
 
     m_scene.Add(Shapes::Rectangle({point3(0.5, -1.0, -2.0), point3(-1.5, 1.0, -2.0), glm::vec3(1.5, 0.0, -2.0)}),
                 material);

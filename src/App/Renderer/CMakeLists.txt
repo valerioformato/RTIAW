@@ -22,3 +22,7 @@ set(RENDERER_SOURCES
 add_library(renderer STATIC ${RENDERER_SOURCES})
 target_include_directories(renderer PUBLIC ${MAIN_SOURCE_DIR})
 target_link_libraries(renderer PUBLIC tl::optional fmt::fmt-header-only spdlog::spdlog_header_only glm)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    # gcc requires tbb for parallel algorithms
+    target_link_libraries(renderer PUBLIC tbb)
+endif ()

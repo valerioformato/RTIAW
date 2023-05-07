@@ -71,4 +71,10 @@ void HittableObjectList::UpdateBVH(float t_min, float t_max) const {
     m_bvh = BVHNode{{m_objects.begin(), m_objects.end()}, t_min, t_max};
   m_bvhIsValid = true;
 }
+
+void HittableObjectList::Clear() {
+  m_objects.clear();
+  m_bvhIsValid = false;
+}
+
 } // namespace RTIAW::Render

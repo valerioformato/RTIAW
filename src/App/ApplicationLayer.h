@@ -26,6 +26,7 @@ private:
   // this is our big boy, who'll do all the work
   Render::Renderer m_renderer;
   Render::Renderer::Scenes m_selectedScene{Render::Renderer::Scenes::DefaultScene};
+  Render::Renderer::Strategy m_renderStrategy{Render::Renderer::Strategy::Quads};
 };
 } // namespace RTIAW
 

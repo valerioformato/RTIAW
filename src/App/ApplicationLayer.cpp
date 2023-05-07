@@ -16,20 +16,13 @@ ApplicationLayer::ApplicationLayer() : m_logger{spdlog::stdout_color_st("Applica
   // FIXME: remove after debugging
   spdlog::set_level(spdlog::level::debug);
 
-  // TODO: later on let this be picked in a ImGui dropdown maybe?
-  // m_renderer.SetScene(RTIAW::Render::Renderer::Scenes::TestScene);
-  // m_renderer.SetScene(RTIAW::Render::Renderer::Scenes::ThreeSpheres);
   m_renderer.SetScene(RTIAW::Render::Renderer::Scenes::DefaultScene);
 }
 
 void ApplicationLayer::OnUIRender() {
-  // my stuff here?
-  //  ImGuiViewport *viewport = ImGui::GetMainViewport();
-  //  ImGui::SetNextWindowPos(viewport->Pos);
-  //  ImGui::SetNextWindowSize(viewport->Size);
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
   ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-  ImGui::Begin("Rendered Image", nullptr, 0 /* ImGuiWindowFlags_NoInputs */);
+  ImGui::Begin("Rendered Image", nullptr, ImGuiWindowFlags_NoInputs);
   uint32_t imx = ImGui::GetContentRegionAvail().x;
   uint32_t imy = ImGui::GetContentRegionAvail().y;
   if (!m_image) {
@@ -48,9 +41,6 @@ void ApplicationLayer::OnUIRender() {
   ImGui::PopStyleVar(2);
 
   ImGui::Begin("Controls");
-  // TODO: change this if/when we'll support multiple scenes
-  // ImGui::Text(fmt::format("Scene: {}", magic_enum::enum_name(m_renderer.Scene())).data());
-  // static std::underlying_type_t<Render::Renderer::Scenes> selected_scene_index = 0;
   if (ImGui::BeginCombo("Scene", magic_enum::enum_name(m_selectedScene).data())) {
     for (auto scene : magic_enum::enum_values<Render::Renderer::Scenes>()) {
       const bool is_selected = (m_selectedScene == scene);
@@ -75,6 +65,7 @@ void ApplicationLayer::OnUIRender() {
   if (ImGui::Button("Start!")) {
     // (re-)initialize buffer
     m_renderer.SetScene(m_selectedScene);
+    m_renderer.SetStrategy(m_renderStrategy);
     m_renderer.SetImageSize(imx, imy);
     m_renderer.StartRender();
   }
@@ -89,7 +80,28 @@ void ApplicationLayer::OnUIRender() {
   ImGui::Begin("Render Settings");
   ImGui::DragInt("Samples", (int *)&m_renderer.samplesPerPixel, 1, 1, 1024);
   ImGui::DragInt("Bounces", (int *)&m_renderer.maxRayDepth, 1, 1, 1024);
+
+  ImGui::Separator();
+
+  ImGui::Checkbox("Continuous rendering", &m_renderer.shouldAccumulate);
+  if (!m_renderer.shouldAccumulate) {
+    if (ImGui::BeginCombo("Render strategy", magic_enum::enum_name(m_renderStrategy).data())) {
+      for (auto strategy : magic_enum::enum_values<Render::Renderer::Strategy>()) {
+        const bool is_selected = (m_renderStrategy == strategy);
+        if (ImGui::Selectable(magic_enum::enum_name(strategy).data(), is_selected))
+          m_renderStrategy = strategy;
+
+        if (is_selected)
+          ImGui::SetItemDefaultFocus();
+      }
+      ImGui::EndCombo();
+    }
+  }
+
+  ImGui::Separator();
+
   ImGui::Text("Last render time: %d ms", m_renderer.lastRenderTimeMS);
+
   ImGui::End();
 }
 } // namespace RTIAW
