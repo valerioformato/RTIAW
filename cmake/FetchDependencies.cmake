@@ -56,3 +56,15 @@ if(NOT tloptional_POPULATED)
   FetchContent_Populate(tloptional)
   add_subdirectory(${tloptional_SOURCE_DIR} ${tloptional_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
+
+# === openexr ===
+FetchContent_Declare(
+  openexr
+  GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/openexr.git
+  GIT_TAG v3.1.7)
+FetchContent_GetProperties(openexr)
+if(NOT openexr_POPULATED)
+  set(OPENEXR_INSTALL_EXAMPLES OFF)
+  FetchContent_Populate(openexr)
+  add_subdirectory(${openexr_SOURCE_DIR} ${openexr_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
